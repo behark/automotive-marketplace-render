@@ -1,5 +1,5 @@
-import { SearchHero } from '@/components/search-hero'
-import { FeaturedListings } from '@/components/featured-listings'
+import { SearchHero } from '../components/search-hero'
+import { FeaturedListings } from '../components/featured-listings'
 
 export default function HomePage() {
   return (
