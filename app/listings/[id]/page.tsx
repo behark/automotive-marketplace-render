@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
+import { FavoriteButton } from '../../../components/favorite-button'
 
 interface Listing {
   id: string
@@ -67,12 +68,38 @@ export default function ListingDetailPage() {
     fetchListing()
   }, [params?.id])
 
-  const handleContactSubmit = (e: React.FormEvent) => {
+  const handleContactSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    alert('Message sent! (Demo mode)')
-    setShowContactForm(false)
-    setMessage('')
-    setBuyerContact({ name: '', email: '', phone: '' })
+
+    try {
+      const response = await fetch('/api/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          listingId: listing?.id,
+          content: message || `Hi, I'm interested in your ${listing?.make} ${listing?.model}. Is it still available?`,
+        }),
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to send message')
+      }
+
+      alert('Message sent successfully! The seller will be notified.')
+      setShowContactForm(false)
+      setMessage('')
+      setBuyerContact({ name: '', email: '', phone: '' })
+
+      // Redirect to messages page
+      window.location.href = `/messages?listingId=${listing?.id}`
+
+    } catch (error) {
+      console.error('Error sending message:', error)
+      alert(`Failed to send message: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    }
   }
 
   if (loading) {
@@ -322,9 +349,11 @@ export default function ListingDetailPage() {
                     Contact Seller
                   </button>
 
-                  <button className="w-full bg-gray-100 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-200 font-medium">
-                    Save to Favorites
-                  </button>
+                  <FavoriteButton
+                    listingId={listing.id}
+                    className="w-full bg-gray-100 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-200 font-medium"
+                    showLabel={true}
+                  />
 
                   <button className="w-full bg-gray-100 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-200 font-medium">
                     Share Listing

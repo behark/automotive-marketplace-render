@@ -15,14 +15,21 @@ model User {
   email     String   @unique
   name      String?
   phone     String?
+  role      String   @default("user") // user, dealer, admin
+  plan      String   @default("free") // free, premium, dealer
+  stripeCustomerId String?
+  subscriptionStatus String @default("inactive") // inactive, active, canceled, past_due
+  subscriptionEndDate DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   // Relations
-  listings  Listing[]
-  messages  Message[]
-  favorites Favorite[]
-  sessions  Session[]
+  listings      Listing[]
+  messages      Message[]
+  favorites     Favorite[]
+  sessions      Session[]
+  payments      Payment[]
+  subscriptions Subscription[]
 
   @@map("users")
 }
@@ -75,6 +82,7 @@ model Listing {
   user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   favorites   Favorite[]
   messages    Message[]
+  payments    Payment[]
 
   // Indexes for search performance
   @@index([make, model])
@@ -112,4 +120,42 @@ model Message {
   @@index([listingId])
   @@index([senderId])
   @@map("messages")
+}
+
+model Payment {
+  id                String   @id @default(cuid())
+  stripePaymentId   String   @unique
+  userId            String
+  listingId         String?  // For featured listing payments
+  amount            Int      // Amount in cents
+  currency          String   @default("eur")
+  status            String   // succeeded, pending, failed
+  type              String   // featured_listing, subscription, one_time
+  description       String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listing           Listing? @relation(fields: [listingId], references: [id], onDelete: SetNull)
+
+  @@map("payments")
+}
+
+model Subscription {
+  id                   String   @id @default(cuid())
+  stripeSubscriptionId String   @unique
+  userId               String
+  plan                 String   // premium, dealer
+  status               String   // active, canceled, past_due, incomplete
+  currentPeriodStart   DateTime
+  currentPeriodEnd     DateTime
+  cancelAtPeriodEnd    Boolean  @default(false)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  // Relations
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("subscriptions")
 }

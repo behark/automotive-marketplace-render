@@ -101,10 +101,27 @@ async function main() {
       email: 'demo@automarket.com',
       name: 'Demo User',
       phone: '+49 123 456 7890',
+      role: 'user',
+      plan: 'free'
     },
   })
 
   console.log(`Created user: ${user.email}`)
+
+  // Create an admin user
+  const admin = await prisma.user.upsert({
+    where: { email: 'admin@automarket.com' },
+    update: {},
+    create: {
+      email: 'admin@automarket.com',
+      name: 'Admin User',
+      phone: '+49 123 456 7891',
+      role: 'admin',
+      plan: 'dealer'
+    },
+  })
+
+  console.log(`Created admin: ${admin.email}`)
 
   // Create sample listings
   for (const listing of sampleListings) {

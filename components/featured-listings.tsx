@@ -1,5 +1,7 @@
 'use client'
 
+import { useTranslation, formatCurrency } from '../lib/hooks/useTranslation'
+
 // Mock data for demo - will be replaced with real data from API
 const mockListings = [
   {
@@ -35,15 +37,17 @@ const mockListings = [
 ]
 
 export function FeaturedListings() {
+  const { t } = useTranslation()
+
   return (
     <section className="py-16 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-gray-900 mb-4">
-            Featured Cars
+            {t('homepage.featuredCars.title')}
           </h2>
           <p className="text-xl text-gray-600">
-            Handpicked premium vehicles from our marketplace
+            {t('homepage.featuredCars.subtitle')}
           </p>
         </div>
 
@@ -68,7 +72,7 @@ export function FeaturedListings() {
 
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-2xl font-bold text-blue-600">
-                    €{listing.price.toLocaleString()}
+                    {formatCurrency(listing.price)}
                   </span>
                   <span className="text-sm text-gray-500">
                     {listing.location}
@@ -77,22 +81,22 @@ export function FeaturedListings() {
 
                 <div className="space-y-2 text-sm text-gray-600">
                   <div className="flex justify-between">
-                    <span>Year:</span>
+                    <span>{t('car.year')}:</span>
                     <span>{listing.year}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Mileage:</span>
+                    <span>{t('car.mileage')}:</span>
                     <span>{listing.mileage.toLocaleString()} km</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Fuel:</span>
-                    <span>{listing.fuelType}</span>
+                    <span>Karburant:</span>
+                    <span>{listing.fuelType === 'Petrol' ? t('car.petrol') : listing.fuelType === 'Diesel' ? t('car.diesel') : listing.fuelType === 'Electric' ? t('car.electric') : listing.fuelType === 'Hybrid' ? t('car.hybrid') : listing.fuelType}</span>
                   </div>
                 </div>
 
                 <div className="mt-6">
                   <button className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
-                    View Details
+                    {t('listings.viewDetails')}
                   </button>
                 </div>
               </div>
@@ -105,7 +109,7 @@ export function FeaturedListings() {
             href="/listings"
             className="inline-block bg-gray-900 text-white px-8 py-3 rounded-lg font-semibold hover:bg-gray-800 transition-colors"
           >
-            View All Cars
+            Shiko të Gjitha Makinat
           </a>
         </div>
       </div>

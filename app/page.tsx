@@ -1,7 +1,12 @@
+'use client'
+
 import { SearchHero } from '../components/search-hero'
 import { FeaturedListings } from '../components/featured-listings'
+import { useTranslation } from '../lib/hooks/useTranslation'
 
 export default function HomePage() {
+  const { t } = useTranslation()
+
   return (
     <div>
       {/* Hero Section with Search */}
@@ -12,10 +17,10 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Why Choose AutoMarket?
+              {t('homepage.features.title')}
             </h2>
             <p className="text-xl text-gray-600">
-              The trusted platform for buying and selling cars in Europe
+              {t('homepage.features.subtitle')}
             </p>
           </div>
 
@@ -26,8 +31,8 @@ export default function HomePage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold mb-2">Verified Listings</h3>
-              <p className="text-gray-600">All cars are verified for quality and authenticity</p>
+              <h3 className="text-xl font-semibold mb-2">{t('homepage.features.verifiedListings.title')}</h3>
+              <p className="text-gray-600">{t('homepage.features.verifiedListings.description')}</p>
             </div>
 
             <div className="text-center">
@@ -36,8 +41,8 @@ export default function HomePage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold mb-2">Fast & Easy</h3>
-              <p className="text-gray-600">Find your perfect car in minutes, not hours</p>
+              <h3 className="text-xl font-semibold mb-2">{t('homepage.features.fastEasy.title')}</h3>
+              <p className="text-gray-600">{t('homepage.features.fastEasy.description')}</p>
             </div>
 
             <div className="text-center">
@@ -46,8 +51,8 @@ export default function HomePage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-2-2V10a2 2 0 012-2h2m2-4h6a2 2 0 012 2v6a2 2 0 01-2 2H9a2 2 0 01-2-2V6a2 2 0 012-2z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold mb-2">Direct Contact</h3>
-              <p className="text-gray-600">Message sellers directly with built-in chat</p>
+              <h3 className="text-xl font-semibold mb-2">{t('homepage.features.directContact.title')}</h3>
+              <p className="text-gray-600">{t('homepage.features.directContact.description')}</p>
             </div>
           </div>
         </div>
@@ -60,16 +65,16 @@ export default function HomePage() {
       <section className="py-16 bg-blue-600">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl font-bold text-white mb-4">
-            Ready to Sell Your Car?
+            {t('homepage.cta.title')}
           </h2>
           <p className="text-xl text-blue-100 mb-8">
-            List your car for free and reach thousands of potential buyers
+            {t('homepage.cta.subtitle')}
           </p>
           <a
             href="/sell"
             className="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
           >
-            Sell Your Car Now
+            {t('homepage.cta.button')}
           </a>
         </div>
       </section>
