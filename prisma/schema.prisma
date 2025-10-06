@@ -62,8 +62,10 @@ model User {
   verification  UserVerification?
   reviews       Review[] @relation("ReviewAuthor")
   receivedReviews Review[] @relation("ReviewTarget")
+  reviewResponses ReviewResponse[]
   reports       UserReport[] @relation("Reporter")
   reportedBy    UserReport[] @relation("Reported")
+  reviewReports ReviewReport[]
   escrowTransactions EscrowTransaction[] @relation("EscrowUser")
   escrowCounterparts EscrowTransaction[] @relation("EscrowCounterpart")
   contentModerations ContentModeration[]
@@ -1180,4 +1182,110 @@ model TransactionSafety {
   listing         Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
 
   @@map("transaction_safety")
+}
+
+// ================================
+// AUTOMATION MODELS
+// ================================
+
+// Saved search functionality
+model SavedSearch {
+  id          String   @id @default(cuid())
+  userId      String
+  name        String   // User-given name for the search
+  criteria    Json     // Search criteria object
+  isActive    Boolean  @default(true)
+  frequency   String   @default("daily") // daily, weekly, monthly
+  lastRun     DateTime?
+  resultsCount Int     @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isActive])
+  @@map("saved_searches")
+}
+
+// Price drop watching for favorites
+model PriceDropWatch {
+  id          String   @id @default(cuid())
+  userId      String
+  listingId   String
+  watchPrice  Int      // Price when watch was set
+  threshold   Float    @default(0.05) // 5% drop threshold
+  isActive    Boolean  @default(true)
+  lastPrice   Int?     // Last known price
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([listingId])
+  @@index([isActive])
+  @@map("price_drop_watches")
+}
+
+// User notification preferences
+model AutomationPreferences {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+
+  // Email preferences
+  emailEnabled    Boolean  @default(true)
+  emailFrequency  String   @default("daily") // realtime, daily, weekly
+
+  // SMS preferences
+  smsEnabled      Boolean  @default(false)
+  smsNumber       String?
+
+  // WhatsApp preferences
+  whatsappEnabled Boolean  @default(false)
+  whatsappNumber  String?
+
+  // Quiet hours (Albanian timezone)
+  quietHoursStart Int      @default(22) // 10 PM
+  quietHoursEnd   Int      @default(8)  // 8 AM
+
+  // Specific notification types
+  savedSearchAlerts Boolean @default(true)
+  priceDropAlerts Boolean   @default(true)
+  messageAlerts   Boolean   @default(true)
+  marketingEmails Boolean   @default(true)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("automation_preferences")
+}
+
+// Notification delivery log
+model NotificationLog {
+  id            String   @id @default(cuid())
+  userId        String
+  type          String   // email, sms, whatsapp, push
+  category      String   // saved_search, price_drop, marketing, etc.
+  status        String   // sent, delivered, failed, bounced
+  recipientInfo String   // Email or phone number
+  subject       String?
+  content       String?
+  errorMessage  String?
+  deliveredAt   DateTime?
+  createdAt     DateTime @default(now())
+
+  // Relations
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([type])
+  @@index([status])
+  @@index([createdAt])
+  @@map("notification_logs")
 }
