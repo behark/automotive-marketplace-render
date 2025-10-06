@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import { FavoriteButton } from '../../../components/favorite-button'
 
+export const dynamic = 'force-dynamic'
+
 interface Listing {
   id: string
   title: string

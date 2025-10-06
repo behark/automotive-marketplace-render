@@ -23,6 +23,9 @@ const nextConfig = {
   // Compression
   compress: true,
 
+  // Disable static generation for complex app with authentication
+  output: 'standalone',
+
   // Environment variables for progressive scaling
   env: {
     USE_REDIS: process.env.USE_REDIS || 'false',

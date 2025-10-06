@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 
+export const dynamic = 'force-dynamic'
+
 export default function AnalyticsPage() {
   const { data: session, status } = useSession()
   const [analytics, setAnalytics] = useState<any>(null)

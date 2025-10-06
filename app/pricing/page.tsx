@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 
+export const dynamic = 'force-dynamic'
+
 interface SubscriptionInfo {
   currentPlan: string
   subscriptionStatus: string
