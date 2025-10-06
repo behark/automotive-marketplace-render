@@ -198,7 +198,7 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const userSpecificData = {}
+    let userSpecificData = {}
     if (!isAdmin) {
       // Get user-specific billing information
       const userCommissions = await prisma.commission.findMany({
