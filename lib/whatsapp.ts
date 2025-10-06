@@ -1,339 +1,301 @@
-import { parsePhoneNumber, isValidPhoneNumber, type CountryCode } from 'libphonenumber-js'
+/**
+ * WhatsApp Business Integration for Albanian Market
+ * Optimized for Albanian, Kosovo, and Macedonia users
+ */
 
-export interface WhatsAppMessage {
-  phone: string
-  message: string
-  url?: string
+interface WhatsAppMessage {
+  phone: string;
+  message: string;
+  listingUrl?: string;
+  listingTitle?: string;
 }
 
-export interface CarListing {
-  id: string
-  title: string
-  make: string
-  model: string
-  year: number
-  price: number
-  currency: string
-  city: string
-  country: string
-  mileage?: number
-  fuelType?: string
-  transmission?: string
-  images?: string[]
-  sellerPhone?: string
-  sellerName?: string
+interface AlbanianCarrier {
+  name: string;
+  prefixes: string[];
+  whatsappSupport: boolean;
 }
 
 class WhatsAppService {
-  private static instance: WhatsAppService
+  private static instance: WhatsAppService;
 
-  private constructor() {}
+  // Albanian mobile carriers with WhatsApp support analysis
+  private albanianCarriers: AlbanianCarrier[] = [
+    {
+      name: 'Vodafone Albania',
+      prefixes: ['067', '068', '069'],
+      whatsappSupport: true
+    },
+    {
+      name: 'Telekom Albania',
+      prefixes: ['066', '065'],
+      whatsappSupport: true
+    },
+    {
+      name: 'ONE Albania',
+      prefixes: ['064'],
+      whatsappSupport: true
+    },
+    {
+      name: 'Plus Communication',
+      prefixes: ['063'],
+      whatsappSupport: true
+    }
+  ];
 
-  static getInstance(): WhatsAppService {
+  public static getInstance(): WhatsAppService {
     if (!WhatsAppService.instance) {
-      WhatsAppService.instance = new WhatsAppService()
+      WhatsAppService.instance = new WhatsAppService();
     }
-    return WhatsAppService.instance
+    return WhatsAppService.instance;
   }
 
   /**
-   * Format phone number for WhatsApp (international format without +)
+   * Validate Albanian phone number and detect carrier
    */
-  formatPhoneForWhatsApp(phone: string, country: CountryCode = 'AL'): string | null {
-    try {
-      if (!phone) return null
+  validateAlbanianPhone(phone: string): { isValid: boolean; carrier?: string; formatted?: string } {
+    // Remove all non-digit characters
+    const cleanPhone = phone.replace(/\D/g, '');
 
-      // Clean the phone number
-      let cleanPhone = phone.replace(/[\s\-\(\)]/g, '')
+    // Check if it's Albanian format
+    let formattedPhone = '';
 
-      // If phone doesn't start with +, add country prefix
-      if (!cleanPhone.startsWith('+')) {
-        const countryPrefixes = {
-          'AL': '355', // Albania
-          'XK': '383', // Kosovo
-          'MK': '389', // North Macedonia
-          'ME': '382', // Montenegro
-          'RS': '381', // Serbia
-          'IT': '39',  // Italy (for Albanian diaspora)
-          'GR': '30',  // Greece (for Albanian diaspora)
-          'DE': '49',  // Germany (for Albanian diaspora)
-          'CH': '41',  // Switzerland (for Albanian diaspora)
-          'US': '1',   // USA (for Albanian diaspora)
-        }
-
-        const prefix = countryPrefixes[country] || countryPrefixes['AL']
-        cleanPhone = `+${prefix}${cleanPhone}`
-      }
-
-      const phoneNumber = parsePhoneNumber(cleanPhone)
-
-      if (phoneNumber && isValidPhoneNumber(cleanPhone)) {
-        // Return without the + for WhatsApp URL
-        return phoneNumber.number.replace('+', '')
-      }
-
-      return null
-    } catch (error) {
-      console.error('Error formatting phone number:', error)
-      return null
-    }
-  }
-
-  /**
-   * Generate Albanian message template for car inquiry
-   */
-  generateCarInquiryMessage(listing: CarListing, buyerName?: string): string {
-    const formatPrice = (price: number, currency: string) => {
-      if (currency === 'ALL') {
-        return new Intl.NumberFormat('sq-AL').format(price) + ' ALL'
-      }
-      return new Intl.NumberFormat('sq-AL', {
-        style: 'currency',
-        currency: 'EUR',
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0
-      }).format(price)
+    if (cleanPhone.startsWith('355')) {
+      // International format (+355)
+      formattedPhone = '+' + cleanPhone;
+    } else if (cleanPhone.startsWith('0') && cleanPhone.length === 10) {
+      // National format (067123456)
+      formattedPhone = '+355' + cleanPhone.substring(1);
+    } else if (cleanPhone.length === 9) {
+      // Without leading 0 (67123456)
+      formattedPhone = '+355' + cleanPhone;
+    } else {
+      return { isValid: false };
     }
 
-    const greeting = buyerName ? `Përshëndetje, unë jam ${buyerName}.` : 'Përshëndetje,'
-
-    const baseMessage = [
-      greeting,
-      '',
-      `Jam i interesuar për makinën tuaj:`,
-      `🚗 ${listing.make} ${listing.model} (${listing.year})`,
-      `💰 Çmimi: ${formatPrice(listing.price, listing.currency)}`,
-      `📍 Vendndodhja: ${listing.city}, ${this.getCountryName(listing.country)}`,
-    ]
-
-    // Add optional details if available
-    if (listing.mileage) {
-      baseMessage.push(`🛣️ Kilometrazhi: ${new Intl.NumberFormat('sq-AL').format(listing.mileage)} km`)
-    }
-
-    if (listing.fuelType) {
-      baseMessage.push(`⛽ Karburanti: ${this.translateFuelType(listing.fuelType)}`)
-    }
-
-    if (listing.transmission) {
-      baseMessage.push(`⚙️ Transmisioni: ${this.translateTransmission(listing.transmission)}`)
-    }
-
-    baseMessage.push(
-      '',
-      'A mund të më jepni më shumë informacione? Jam seriozisht i interesuar për blerje.',
-      '',
-      'Faleminderit!'
-    )
-
-    return baseMessage.join('\n')
-  }
-
-  /**
-   * Generate WhatsApp Business API message for automated responses
-   */
-  generateBusinessMessage(listing: CarListing, inquiryType: 'price' | 'details' | 'viewing' | 'financing'): string {
-    const baseInfo = `${listing.make} ${listing.model} ${listing.year}`
-
-    switch (inquiryType) {
-      case 'price':
-        return [
-          'Faleminderit për interesimin tuaj!',
-          '',
-          `Çmimi për ${baseInfo}:`,
-          `💰 ${this.formatPrice(listing.price, listing.currency)}`,
-          '',
-          'Çmimi është i negociueshëm për blerës seriozë.',
-          'A dëshironi të organizojmë një takim për ta parë makinën?'
-        ].join('\n')
-
-      case 'details':
-        return [
-          `Detaje të plota për ${baseInfo}:`,
-          '',
-          `📅 Viti: ${listing.year}`,
-          `🛣️ Kilometrazhi: ${listing.mileage ? new Intl.NumberFormat('sq-AL').format(listing.mileage) + ' km' : 'Nuk specifikohet'}`,
-          `⛽ Karburanti: ${listing.fuelType ? this.translateFuelType(listing.fuelType) : 'Nuk specifikohet'}`,
-          `⚙️ Transmisioni: ${listing.transmission ? this.translateTransmission(listing.transmission) : 'Nuk specifikohet'}`,
-          `📍 Vendndodhja: ${listing.city}`,
-          '',
-          'A keni pyetje të tjera specifike?'
-        ].join('\n')
-
-      case 'viewing':
-        return [
-          'Jam i gatshëm t\'ju tregoj makinën!',
-          '',
-          `📍 Vendndodhja: ${listing.city}, ${this.getCountryName(listing.country)}`,
-          '',
-          'Orari i mundshëm:',
-          '🕘 E Hënë - E Premte: 09:00 - 18:00',
-          '🕘 E Shtunë: 09:00 - 15:00',
-          '🕘 E Diel: Vetëm me takim të paraprak',
-          '',
-          'Kur do të ishit të lirë për ta parë?'
-        ].join('\n')
-
-      case 'financing':
-        return [
-          'Për financimin e makinës:',
-          '',
-          `💰 Çmimi total: ${this.formatPrice(listing.price, listing.currency)}`,
-          '',
-          '💳 Mundësi pagese:',
-          '• Pagesa të plotë në dorë',
-          '• Financim përmes bankës (deri në 7 vjet)',
-          '• Leasing operational',
-          '• Pagesa në këste (me marrëveshje)',
-          '',
-          'Cila mundësi ju intereson më shumë?'
-        ].join('\n')
-
-      default:
-        return this.generateCarInquiryMessage(listing)
-    }
-  }
-
-  /**
-   * Create WhatsApp URL for opening chat
-   */
-  createWhatsAppUrl(phone: string, message: string): string {
-    const formattedPhone = this.formatPhoneForWhatsApp(phone)
-    if (!formattedPhone) {
-      throw new Error('Invalid phone number')
-    }
-
-    const encodedMessage = encodeURIComponent(message)
-    return `https://wa.me/${formattedPhone}?text=${encodedMessage}`
-  }
-
-  /**
-   * Create WhatsApp Business API message (for automated business accounts)
-   */
-  createBusinessApiMessage(phone: string, message: string, businessPhoneId: string): WhatsAppMessage {
-    const formattedPhone = this.formatPhoneForWhatsApp(phone)
-    if (!formattedPhone) {
-      throw new Error('Invalid phone number')
-    }
+    // Detect carrier by prefix
+    const prefix = formattedPhone.substring(4, 7); // Extract 3-digit prefix after +355
+    const carrier = this.albanianCarriers.find(c => c.prefixes.includes(prefix));
 
     return {
-      phone: formattedPhone,
-      message,
-      url: `https://graph.facebook.com/v17.0/${businessPhoneId}/messages`
-    }
+      isValid: !!carrier,
+      carrier: carrier?.name,
+      formatted: formattedPhone
+    };
   }
 
   /**
-   * Generate sharing message for social media
+   * Generate Albanian message templates for different scenarios
    */
-  generateSharingMessage(listing: CarListing, websiteUrl: string): string {
-    return [
-      `🚗 ${listing.make} ${listing.model} ${listing.year}`,
-      `💰 ${this.formatPrice(listing.price, listing.currency)}`,
-      `📍 ${listing.city}, ${this.getCountryName(listing.country)}`,
-      '',
-      `Shiko shpalljen e plotë: ${websiteUrl}/listings/${listing.id}`,
-      '',
-      '#AutoMarketAlbania #MakinaPerShitje #AutoShqiperia'
-    ].join('\n')
+  getMessageTemplates() {
+    return {
+      interest: {
+        subject: 'Interesim për makinën tuaj',
+        template: (listingTitle: string, userName: string) =>
+          `Përshëndetje! Jam i interesuar për makinën tuaj "${listingTitle}". A është ende e disponueshme? Faleminderit! - ${userName}`,
+      },
+      priceInquiry: {
+        subject: 'Pyetje për çmimin',
+        template: (listingTitle: string, userName: string) =>
+          `Përshëndetje! A ka mundësi për negocim të çmimit për "${listingTitle}"? Faleminderit! - ${userName}`,
+      },
+      viewing: {
+        subject: 'Kërkesë për shikim',
+        template: (listingTitle: string, userName: string) =>
+          `Përshëndetje! Mund të shohim makinën "${listingTitle}"? Kur jeni i lirë? Faleminderit! - ${userName}`,
+      },
+      financing: {
+        subject: 'Pyetje për financim',
+        template: (listingTitle: string, userName: string) =>
+          `Përshëndetje! A keni mundësi financimi për "${listingTitle}"? Mund të diskutojmë kushtet? Faleminderit! - ${userName}`,
+      },
+      details: {
+        subject: 'Pyetje për detaje',
+        template: (listingTitle: string, userName: string) =>
+          `Përshëndetje! Mund të më jepni më shumë detaje për "${listingTitle}"? Historia e makinës, dokumentet, etj.? Faleminderit! - ${userName}`,
+      }
+    };
   }
 
   /**
-   * Check if phone number is Albanian mobile
+   * Generate WhatsApp URL for direct messaging
    */
-  isAlbanianMobile(phone: string): boolean {
-    try {
-      const phoneNumber = parsePhoneNumber(phone, 'AL')
-      return phoneNumber?.getType() === 'MOBILE' && phoneNumber.country === 'AL'
-    } catch {
-      return false
+  generateWhatsAppUrl(phone: string, message: string): string {
+    const validation = this.validateAlbanianPhone(phone);
+    if (!validation.isValid) {
+      throw new Error('Invalid Albanian phone number');
     }
+
+    const encodedMessage = encodeURIComponent(message);
+    const cleanPhone = validation.formatted!.replace('+', '');
+
+    return `https://wa.me/${cleanPhone}?text=${encodedMessage}`;
   }
 
   /**
-   * Get Albanian mobile operators
+   * Generate WhatsApp business message for listings
    */
-  getAlbanianOperator(phone: string): string | null {
-    const formattedPhone = this.formatPhoneForWhatsApp(phone, 'AL')
-    if (!formattedPhone) return null
+  generateListingMessage(
+    listingTitle: string,
+    userName: string,
+    messageType: keyof ReturnType<typeof this.getMessageTemplates> = 'interest'
+  ): string {
+    const templates = this.getMessageTemplates();
+    const template = templates[messageType];
 
-    // Albanian mobile prefixes
-    if (formattedPhone.startsWith('35567') || formattedPhone.startsWith('35568') || formattedPhone.startsWith('35569')) {
-      return 'Vodafone Albania'
-    }
-    if (formattedPhone.startsWith('35566') || formattedPhone.startsWith('35565')) {
-      return 'One Albania'
-    }
-    if (formattedPhone.startsWith('35564')) {
-      return 'Plus Communication'
-    }
-
-    return 'Unknown'
+    return template.template(listingTitle, userName);
   }
 
-  private formatPrice(price: number, currency: string): string {
-    if (currency === 'ALL') {
-      return new Intl.NumberFormat('sq-AL').format(price) + ' ALL'
-    }
-    return new Intl.NumberFormat('sq-AL', {
-      style: 'currency',
-      currency: 'EUR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(price)
+  /**
+   * Create WhatsApp share URL for listing
+   */
+  generateListingShareUrl(listing: any, baseUrl: string): string {
+    const shareText = `🚗 ${listing.title}
+
+💰 Çmimi: €${(listing.price / 100).toLocaleString()}
+📅 Viti: ${listing.year}
+⚙️ Kilometrazhi: ${listing.mileage.toLocaleString()} km
+⛽ Karburant: ${this.translateFuelType(listing.fuelType)}
+📍 Vendndodhja: ${listing.city}
+
+Shiko më shumë detaje:
+${baseUrl}/listings/${listing.id}
+
+#AutoMarketShqiperia #MakinaPerShitje #${listing.city}`;
+
+    return `https://wa.me/?text=${encodeURIComponent(shareText)}`;
   }
 
-  private getCountryName(countryCode: string): string {
-    const countries = {
-      'AL': 'Shqipëri',
-      'XK': 'Kosovë',
-      'MK': 'Maqedoni e Veriut',
-      'ME': 'Mali i Zi',
-      'RS': 'Serbi',
-      'GR': 'Greqi',
-      'IT': 'Itali',
-      'DE': 'Gjermani',
-      'CH': 'Zvicër',
-      'US': 'SHBA'
-    }
-    return countries[countryCode as keyof typeof countries] || countryCode
-  }
-
+  /**
+   * Translate fuel types to Albanian
+   */
   private translateFuelType(fuelType: string): string {
-    const translations = {
-      'gasoline': 'Benzinë',
-      'diesel': 'Nafte',
-      'electric': 'Elektrik',
-      'hybrid': 'Hibrid',
-      'lpg': 'LPG (Gaz)',
-      'natural_gas': 'Gaz Natyror',
-      'ethanol': 'Etanol'
-    }
-    return translations[fuelType.toLowerCase() as keyof typeof translations] || fuelType
+    const translations: { [key: string]: string } = {
+      'Petrol': 'Benzinë',
+      'Diesel': 'Naftë',
+      'Electric': 'Elektrike',
+      'Hybrid': 'Hibride',
+      'LPG': 'LPG'
+    };
+    return translations[fuelType] || fuelType;
   }
 
-  private translateTransmission(transmission: string): string {
-    const translations = {
-      'manual': 'Manual',
-      'automatic': 'Automatik',
-      'semi_automatic': 'Gjysmë-automatik',
-      'cvt': 'CVT'
+  /**
+   * Get WhatsApp Business API configuration for automation
+   */
+  getBusinessConfig() {
+    return {
+      businessPhoneId: process.env.WHATSAPP_BUSINESS_PHONE_ID,
+      accessToken: process.env.WHATSAPP_BUSINESS_ACCESS_TOKEN,
+      webhookVerifyToken: process.env.WHATSAPP_WEBHOOK_VERIFY_TOKEN,
+      apiUrl: 'https://graph.facebook.com/v17.0',
+      supportedCountries: ['AL', 'XK', 'MK'], // Albania, Kosovo, Macedonia
+      defaultLanguage: 'sq' // Albanian
+    };
+  }
+
+  /**
+   * Send automated WhatsApp message via Business API
+   */
+  async sendBusinessMessage(
+    to: string,
+    message: string,
+    type: 'text' | 'template' = 'text'
+  ): Promise<boolean> {
+    try {
+      const config = this.getBusinessConfig();
+
+      if (!config.businessPhoneId || !config.accessToken) {
+        console.log('WhatsApp Business API not configured, skipping automated message');
+        return false;
+      }
+
+      // Validate Albanian phone number
+      const validation = this.validateAlbanianPhone(to);
+      if (!validation.isValid) {
+        throw new Error(`Invalid phone number: ${to}`);
+      }
+
+      const response = await fetch(
+        `${config.apiUrl}/${config.businessPhoneId}/messages`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${config.accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            messaging_product: 'whatsapp',
+            to: validation.formatted!.replace('+', ''),
+            type: type,
+            text: type === 'text' ? { body: message } : undefined,
+            template: type === 'template' ? {
+              name: message, // Template name for template messages
+              language: { code: 'sq' }
+            } : undefined
+          })
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        console.error('WhatsApp Business API error:', result);
+        return false;
+      }
+
+      console.log('WhatsApp message sent successfully:', result.messages?.[0]?.id);
+      return true;
+
+    } catch (error) {
+      console.error('Error sending WhatsApp message:', error);
+      return false;
     }
-    return translations[transmission.toLowerCase() as keyof typeof translations] || transmission
+  }
+
+  /**
+   * Handle WhatsApp webhook for incoming messages
+   */
+  async handleWebhook(payload: any): Promise<any> {
+    try {
+      // Process incoming WhatsApp messages
+      const messages = payload.entry?.[0]?.changes?.[0]?.value?.messages || [];
+      const contacts = payload.entry?.[0]?.changes?.[0]?.value?.contacts || [];
+
+      for (const message of messages) {
+        const phoneNumber = message.from;
+        const messageText = message.text?.body || '';
+        const messageType = message.type;
+
+        console.log(`Received WhatsApp message from ${phoneNumber}: ${messageText}`);
+
+        // Here you could implement auto-responses or route to customer service
+        // For now, we'll just log the message
+      }
+
+      return { success: true, processed: messages.length };
+
+    } catch (error) {
+      console.error('WhatsApp webhook error:', error);
+      return { success: false, error: error.message };
+    }
   }
 }
 
-export const whatsappService = WhatsAppService.getInstance()
+// Export singleton instance
+export const whatsappService = WhatsAppService.getInstance();
 
-// React hook for WhatsApp integration
-export function useWhatsApp() {
-  return {
-    formatPhone: whatsappService.formatPhoneForWhatsApp.bind(whatsappService),
-    generateMessage: whatsappService.generateCarInquiryMessage.bind(whatsappService),
-    generateBusinessMessage: whatsappService.generateBusinessMessage.bind(whatsappService),
-    createUrl: whatsappService.createWhatsAppUrl.bind(whatsappService),
-    generateSharingMessage: whatsappService.generateSharingMessage.bind(whatsappService),
-    isAlbanianMobile: whatsappService.isAlbanianMobile.bind(whatsappService),
-    getOperator: whatsappService.getAlbanianOperator.bind(whatsappService)
-  }
-}
+// Export utility functions
+export const WhatsAppUtils = {
+  generateContactUrl: (phone: string, message: string) =>
+    whatsappService.generateWhatsAppUrl(phone, message),
+
+  generateListingShareUrl: (listing: any, baseUrl: string) =>
+    whatsappService.generateListingShareUrl(listing, baseUrl),
+
+  validateAlbanianPhone: (phone: string) =>
+    whatsappService.validateAlbanianPhone(phone),
+
+  getMessageTemplates: () =>
+    whatsappService.getMessageTemplates()
+};
