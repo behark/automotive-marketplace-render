@@ -32,6 +32,10 @@ export default function RootLayout({
                     <a href="/sell" className="text-gray-900 hover:text-blue-600">Sell Your Car</a>
                     <a href="/contact" className="text-gray-900 hover:text-blue-600">Contact</a>
                   </div>
+                  <div className="hidden md:flex items-center space-x-4">
+                    <a href="/auth/signin" className="text-gray-900 hover:text-blue-600">Sign In</a>
+                    <a href="/auth/signup" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Sign Up</a>
+                  </div>
                 </div>
               </div>
             </nav>

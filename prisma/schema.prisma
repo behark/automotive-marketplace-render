@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -62,13 +62,13 @@ model Listing {
   status      String   @default("active") // active, sold, expired
   featured    Boolean  @default(false)
 
-  // Images (stored as JSON array for now)
-  images      Json?    // Array of image URLs/paths
+  // Images (stored as comma-separated string for SQLite)
+  images      String?    // Comma-separated image URLs/paths
 
   // Metadata
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  expiresAt   DateTime @default(dbgenerated("(now() + interval '90 days')"))
+  expiresAt   DateTime @default(now())
 
   // Relations
   userId      String
