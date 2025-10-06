@@ -73,7 +73,11 @@ export async function GET(request: NextRequest) {
     const formattedListings = listings.map(listing => ({
       ...listing,
       price: listing.price / 100,
-      images: listing.images ? listing.images.split(',') : [],
+      images: Array.isArray(listing.images)
+        ? listing.images
+        : typeof listing.images === 'string'
+          ? listing.images.split(',')
+          : [],
       messageCount: listing.messages.length,
       favoriteCount: listing.favorites.length
     }))
