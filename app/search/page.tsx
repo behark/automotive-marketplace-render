@@ -1,18 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useState } from 'react'
 
 export const dynamic = 'force-dynamic'
 
 export default function SearchPage() {
-  const searchParams = useSearchParams()
   const [searchQuery, setSearchQuery] = useState('')
-
-  useEffect(() => {
-    const query = searchParams?.get('q') || ''
-    setSearchQuery(query)
-  }, [searchParams])
 
   return (
     <div className="min-h-screen bg-gray-50">

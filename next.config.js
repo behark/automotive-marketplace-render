@@ -23,8 +23,11 @@ const nextConfig = {
   // Compression
   compress: true,
 
-  // Disable static generation for complex app with authentication
+  // Configure for dynamic app with authentication
   output: 'standalone',
+
+  // Disable problematic optimizations for Render
+  swcMinify: false,
 
   // Environment variables for progressive scaling
   env: {

@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
-import { useSearchParams } from 'next/navigation'
 
 export const dynamic = 'force-dynamic'
 
@@ -42,7 +41,6 @@ interface Conversation {
 
 export default function MessagesPage() {
   const { data: session, status } = useSession()
-  const searchParams = useSearchParams()
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null)
   const [messages, setMessages] = useState<any[]>([])
@@ -57,16 +55,6 @@ export default function MessagesPage() {
       setLoading(false)
     }
   }, [status])
-
-  useEffect(() => {
-    const listingId = searchParams?.get('listingId')
-    if (listingId && conversations.length > 0) {
-      const conversation = conversations.find(c => c.listingId === listingId)
-      if (conversation) {
-        selectConversation(conversation)
-      }
-    }
-  }, [searchParams, conversations])
 
   const fetchConversations = async () => {
     try {

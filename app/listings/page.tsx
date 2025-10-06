@@ -1,7 +1,6 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useState, useEffect } from 'react'
 import { FavoriteButton } from '../../components/favorite-button'
 
 export const dynamic = 'force-dynamic'
@@ -33,23 +32,17 @@ export default function ListingsPage() {
     location: ''
   })
 
-  const searchParams = useSearchParams()
-
   const fetchListings = async () => {
     setLoading(true)
     try {
       const params = new URLSearchParams()
 
-      // Add search params
-      const search = searchParams?.get('search') || filters.search
-      const location = searchParams?.get('location') || filters.location
-
-      if (search) params.append('search', search)
+      if (filters.search) params.append('search', filters.search)
       if (filters.minPrice) params.append('minPrice', filters.minPrice)
       if (filters.maxPrice) params.append('maxPrice', filters.maxPrice)
       if (filters.make) params.append('make', filters.make)
       if (filters.fuelType) params.append('fuelType', filters.fuelType)
-      if (location) params.append('location', location)
+      if (filters.location) params.append('location', filters.location)
 
       const response = await fetch(`/api/listings?${params.toString()}`)
 
@@ -69,23 +62,31 @@ export default function ListingsPage() {
   }
 
   useEffect(() => {
-    // Set initial search from URL params
-    const search = searchParams?.get('search') || ''
-    const location = searchParams?.get('location') || ''
-
-    setFilters(prev => ({
-      ...prev,
-      search,
-      location
-    }))
-
+    // Load listings when component mounts
     fetchListings()
-  }, [searchParams])
+  }, [])
 
   useEffect(() => {
     // Refetch when filters change
     fetchListings()
   }, [filters])
+
+  // Handle URL search params on client-side only
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search)
+      const search = urlParams.get('search') || ''
+      const location = urlParams.get('location') || ''
+
+      if (search || location) {
+        setFilters(prev => ({
+          ...prev,
+          search,
+          location
+        }))
+      }
+    }
+  }, [])
 
   const handleFilterChange = (key: string, value: string) => {
     setFilters(prev => ({ ...prev, [key]: value }))
