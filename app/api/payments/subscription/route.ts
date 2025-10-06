@@ -10,21 +10,89 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
 
 const prisma = new PrismaClient()
 
-// Subscription plans
+// Subscription plans optimized for Albanian market
 const PLANS = {
+  basic: {
+    priceId: 'price_basic_free',
+    name: 'Basic',
+    price: 0, // Free
+    features: [
+      '3 active listings',
+      'Standard photos (up to 10)',
+      'Basic search visibility',
+      'Email support',
+      'Standard listing duration (90 days)'
+    ],
+    maxListings: 3,
+    commissionRate: 0.05, // 5% commission
+    leadCredits: 0,
+    enhancements: []
+  },
   premium: {
     priceId: 'price_premium_monthly', // Replace with actual Stripe price ID
     name: 'Premium',
     price: 2900, // €29 in cents
-    features: ['50 active listings', 'Advanced analytics', 'Priority support'],
-    maxListings: 50
+    features: [
+      '25 active listings',
+      'Premium photos (up to 20)',
+      'Featured search placement',
+      'Basic analytics dashboard',
+      'Priority email support',
+      '1 free listing bump per month',
+      'Extended listing duration (120 days)'
+    ],
+    maxListings: 25,
+    commissionRate: 0.04, // 4% commission
+    leadCredits: 300, // €3 in lead credits per month
+    enhancements: ['bump']
   },
   dealer: {
     priceId: 'price_dealer_monthly', // Replace with actual Stripe price ID
     name: 'Dealer',
     price: 9900, // €99 in cents
-    features: ['Unlimited listings', 'Dealer badge', 'Bulk upload', 'Advanced tools'],
-    maxListings: -1 // unlimited
+    features: [
+      'Unlimited active listings',
+      'Professional photos (unlimited)',
+      'Top search placement',
+      'Advanced analytics & insights',
+      'Lead generation tools',
+      'Bulk upload tools',
+      'Dealer badge & verification',
+      'Priority phone support',
+      '5 free listing bumps per month',
+      '2 free featured listings per month',
+      'Extended listing duration (180 days)'
+    ],
+    maxListings: -1, // unlimited
+    commissionRate: 0.035, // 3.5% commission
+    leadCredits: 1000, // €10 in lead credits per month
+    enhancements: ['bump', 'featured']
+  },
+  enterprise: {
+    priceId: 'price_enterprise_monthly', // Replace with actual Stripe price ID
+    name: 'Enterprise',
+    price: 29900, // €299 in cents
+    features: [
+      'Unlimited active listings',
+      'Professional photos & videos (unlimited)',
+      'Premium search placement',
+      'Advanced analytics & market insights',
+      'Lead generation & CRM tools',
+      'Multi-location management',
+      'API access for integrations',
+      'Custom dealer branding',
+      'Dedicated account manager',
+      'Priority phone support',
+      'Unlimited listing bumps',
+      'Unlimited featured listings',
+      'Homepage promotion slots',
+      'Partnership revenue sharing',
+      'Custom integrations'
+    ],
+    maxListings: -1, // unlimited
+    commissionRate: 0.03, // 3% commission
+    leadCredits: 2500, // €25 in lead credits per month
+    enhancements: ['bump', 'featured', 'homepage', 'urgent', 'video']
   }
 }
 

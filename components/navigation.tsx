@@ -3,6 +3,7 @@
 import { useSession, signOut } from 'next-auth/react'
 import { useState } from 'react'
 import { useTranslation } from '../lib/hooks/useTranslation'
+import { CurrencySwitcher } from './currency-switcher'
 
 export function Navigation() {
   const { data: session, status } = useSession()
@@ -31,8 +32,9 @@ export function Navigation() {
             <a href="/contact" className="text-gray-900 hover:text-blue-600 transition-colors">{t('nav.contact')}</a>
           </div>
 
-          {/* Authentication Section */}
+          {/* Currency Switcher & Authentication Section */}
           <div className="hidden md:flex items-center space-x-4">
+            <CurrencySwitcher />
             {status === 'loading' && (
               <div className="animate-pulse">
                 <div className="h-8 w-20 bg-gray-200 rounded"></div>
@@ -131,6 +133,9 @@ export function Navigation() {
               {status === 'unauthenticated' && (
                 <>
                   <div className="border-t border-gray-200 my-2"></div>
+                  <div className="px-3 py-2">
+                    <CurrencySwitcher />
+                  </div>
                   <a href="/auth/signin" className="block px-3 py-2 text-gray-900 hover:text-blue-600">{t('nav.signIn')}</a>
                   <a href="/auth/signup" className="block px-3 py-2 bg-blue-600 text-white rounded-lg mx-3">{t('nav.signUp')}</a>
                 </>
@@ -139,6 +144,9 @@ export function Navigation() {
               {status === 'authenticated' && (
                 <>
                   <div className="border-t border-gray-200 my-2"></div>
+                  <div className="px-3 py-2">
+                    <CurrencySwitcher />
+                  </div>
                   <a href="/dashboard" className="block px-3 py-2 text-gray-900 hover:text-blue-600">{t('nav.dashboard')}</a>
                   <a href="/favorites" className="block px-3 py-2 text-gray-900 hover:text-blue-600">{t('nav.favorites')}</a>
                   <a href="/messages" className="block px-3 py-2 text-gray-900 hover:text-blue-600">{t('nav.messages')}</a>
