@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
         userProfile: session?.user ? {
           id: session.user.id,
           name: session.user.name,
-          role: session.user.role,
+          role: (session.user as any).role || 'user',
         } : null,
       },
     };
