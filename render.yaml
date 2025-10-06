@@ -1,0 +1,52 @@
+services:
+  # Web Service (Next.js App)
+  - type: web
+    name: automotive-marketplace
+    runtime: node
+    plan: free  # Start with free tier
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: automotive-db
+          property: connectionString
+      # Redis connection (when added later)
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: automotive-redis
+          property: connectionString
+        # Optional - will be added when Redis service is created
+      # Feature flags for progressive scaling
+      - key: USE_REDIS
+        value: "false"  # Start without Redis
+      - key: USE_ELASTICSEARCH
+        value: "false"  # Use PostgreSQL search initially
+      - key: USE_S3
+        value: "false"  # Store images locally initially
+      - key: MAX_IMAGES_PER_LISTING
+        value: "5"      # Limit for free tier
+      - key: NEXTAUTH_URL
+        fromService:
+          name: automotive-marketplace
+          type: web
+          property: url
+    # Auto-deploy from main branch
+    autoDeploy: true
+
+  # PostgreSQL Database
+  - type: pserv
+    name: automotive-db
+    runtime: postgresql
+    plan: free  # 30-day free, then $6/month starter
+    databaseName: automotive
+    databaseUser: automotive_user
+
+# Optional Redis (add when needed)
+# - type: redis
+#   name: automotive-redis
+#   plan: starter  # $10/month when ready
+#   maxmemoryPolicy: allkeys-lru

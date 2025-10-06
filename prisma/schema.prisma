@@ -1,0 +1,115 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  phone     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  listings  Listing[]
+  messages  Message[]
+  favorites Favorite[]
+  sessions  Session[]
+
+  @@map("users")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model Listing {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  price       Int      // Price in cents
+  currency    String   @default("EUR")
+
+  // Car details
+  make        String
+  model       String
+  year        Int
+  mileage     Int
+  fuelType    String
+  transmission String
+  bodyType    String
+  color       String?
+
+  // Location
+  city        String
+  country     String   @default("DE")
+
+  // Status
+  status      String   @default("active") // active, sold, expired
+  featured    Boolean  @default(false)
+
+  // Images (stored as JSON array for now)
+  images      Json?    // Array of image URLs/paths
+
+  // Metadata
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  expiresAt   DateTime @default(dbgenerated("(now() + interval '90 days')"))
+
+  // Relations
+  userId      String
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  favorites   Favorite[]
+  messages    Message[]
+
+  // Indexes for search performance
+  @@index([make, model])
+  @@index([price])
+  @@index([city])
+  @@index([status])
+  @@index([createdAt])
+  @@map("listings")
+}
+
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  listingId String
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, listingId])
+  @@map("favorites")
+}
+
+model Message {
+  id          String   @id @default(cuid())
+  content     String
+  senderId    String
+  listingId   String
+  createdAt   DateTime @default(now())
+  read        Boolean  @default(false)
+
+  sender      User     @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  listing     Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@index([listingId])
+  @@index([senderId])
+  @@map("messages")
+}
