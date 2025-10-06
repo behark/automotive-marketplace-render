@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth'
 import { PrismaClient } from '@prisma/client'
+import { authOptions } from '../../../lib/auth'
 
 const prisma = new PrismaClient()
 
@@ -75,7 +77,7 @@ export async function GET(request: NextRequest) {
     const formattedListings = listings.map(listing => ({
       ...listing,
       price: listing.price / 100,
-      images: listing.images ? listing.images.split(',') : []
+      images: Array.isArray(listing.images) ? listing.images : (listing.images ? [listing.images] : [])
     }))
 
     return NextResponse.json({
@@ -102,27 +104,70 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
 
-    // Basic validation
+    // Check authentication first
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.email) {
+      // For demo purposes, allow unauthenticated users and use demo user
+      console.log('No session found, using demo user for listing creation')
+    }
+
+    // Basic validation with better error messages
     const requiredFields = ['title', 'description', 'price', 'make', 'model', 'year', 'mileage', 'fuelType', 'transmission', 'city']
     for (const field of requiredFields) {
-      if (!body[field]) {
+      if (!body[field] || body[field] === '' || body[field] === null) {
+        console.log(`Missing required field: ${field}, received:`, body[field])
         return NextResponse.json(
-          { error: `Missing required field: ${field}` },
+          { error: `Missing required field: ${field}. Please fill in all required information.` },
           { status: 400 }
         )
       }
     }
 
-    // TODO: Get user ID from authentication session
-    // For now, we'll use the demo user
-    const demoUser = await prisma.user.findFirst({
-      where: { email: 'demo@automarket.com' }
-    })
+    // Validate data types and ranges
+    const price = parseFloat(body.price)
+    const year = parseInt(body.year)
+    const mileage = parseInt(body.mileage)
 
-    if (!demoUser) {
+    if (isNaN(price) || price <= 0) {
       return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
+        { error: 'Price must be a valid positive number' },
+        { status: 400 }
+      )
+    }
+
+    if (isNaN(year) || year < 1900 || year > new Date().getFullYear() + 1) {
+      return NextResponse.json(
+        { error: 'Year must be a valid year between 1900 and next year' },
+        { status: 400 }
+      )
+    }
+
+    if (isNaN(mileage) || mileage < 0) {
+      return NextResponse.json(
+        { error: 'Mileage must be a valid positive number' },
+        { status: 400 }
+      )
+    }
+
+    // Get user (authenticated or demo user for testing)
+    let user
+    if (session?.user?.email) {
+      user = await prisma.user.findUnique({
+        where: { email: session.user.email }
+      })
+    }
+
+    // Fallback to demo user if no authenticated user
+    if (!user) {
+      user = await prisma.user.findFirst({
+        where: { email: 'demo@automarket.com' }
+      })
+    }
+
+    if (!user) {
+      return NextResponse.json(
+        { error: 'User authentication required. Please sign in to create listings.' },
+        { status: 401 }
       )
     }
 
@@ -142,10 +187,10 @@ export async function POST(request: NextRequest) {
         color: body.color || '',
         city: body.city,
         country: body.country || 'DE',
-        images: Array.isArray(body.images) ? body.images.join(',') : '',
+        images: Array.isArray(body.images) ? body.images : (body.images ? [body.images] : []),
         status: 'active',
         featured: body.featured || false,
-        userId: demoUser.id
+        userId: user.id
       },
       include: {
         user: {
@@ -158,7 +203,7 @@ export async function POST(request: NextRequest) {
     const formattedListing = {
       ...listing,
       price: listing.price / 100,
-      images: listing.images ? listing.images.split(',') : []
+      images: Array.isArray(listing.images) ? listing.images : (listing.images ? [listing.images] : [])
     }
 
     return NextResponse.json(formattedListing, { status: 201 })

@@ -32,7 +32,7 @@ export async function GET(
     const formattedListing = {
       ...listing,
       price: listing.price / 100,
-      images: listing.images ? listing.images.split(',') : [],
+      images: Array.isArray(listing.images) ? listing.images : (listing.images ? [listing.images] : []),
       features: [], // TODO: Implement features as separate table
       seller: {
         name: listing.user.name || 'Anonymous',
@@ -91,7 +91,7 @@ export async function PUT(
         ...(body.bodyType && { bodyType: body.bodyType }),
         ...(body.color && { color: body.color }),
         ...(body.city && { city: body.city }),
-        ...(body.images && { images: Array.isArray(body.images) ? body.images.join(',') : body.images }),
+        ...(body.images && { images: Array.isArray(body.images) ? body.images : [body.images] }),
         ...(body.status && { status: body.status }),
         updatedAt: new Date()
       },
@@ -106,7 +106,7 @@ export async function PUT(
     const formattedListing = {
       ...updatedListing,
       price: updatedListing.price / 100,
-      images: updatedListing.images ? updatedListing.images.split(',') : []
+      images: Array.isArray(updatedListing.images) ? updatedListing.images : (updatedListing.images ? [updatedListing.images] : [])
     }
 
     return NextResponse.json(formattedListing)

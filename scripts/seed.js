@@ -18,7 +18,7 @@ const sampleListings = [
     city: 'Berlin',
     country: 'DE',
     featured: true,
-    images: '/placeholder-car-1.jpg',
+    images: ['/placeholder-car-1.jpg'],
   },
   {
     title: '2019 Audi A4 Avant',
@@ -35,7 +35,7 @@ const sampleListings = [
     city: 'Munich',
     country: 'DE',
     featured: true,
-    images: '/placeholder-car-2.jpg',
+    images: ['/placeholder-car-2.jpg'],
   },
   {
     title: '2021 Mercedes C-Class',
@@ -52,7 +52,7 @@ const sampleListings = [
     city: 'Hamburg',
     country: 'DE',
     featured: true,
-    images: '/placeholder-car-3.jpg',
+    images: ['/placeholder-car-3.jpg'],
   },
   {
     title: '2018 Volkswagen Golf GTI',
@@ -69,7 +69,7 @@ const sampleListings = [
     city: 'Cologne',
     country: 'DE',
     featured: false,
-    images: '/placeholder-car-4.jpg',
+    images: ['/placeholder-car-4.jpg'],
   },
   {
     title: '2020 Tesla Model 3',
@@ -86,7 +86,7 @@ const sampleListings = [
     city: 'Frankfurt',
     country: 'DE',
     featured: false,
-    images: '/placeholder-car-5.jpg',
+    images: ['/placeholder-car-5.jpg'],
   }
 ]
 

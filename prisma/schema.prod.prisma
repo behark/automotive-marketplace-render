@@ -1,4 +1,4 @@
-// This is your Prisma schema file,
+// This is your Prisma schema file for production (PostgreSQL)
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
@@ -63,14 +63,14 @@ model Listing {
 
   // Location
   city        String
-  country     String   @default("DE")
+  country     String   @default("AL") // Default to Albania
 
   // Status
   status      String   @default("active") // active, sold, expired
   featured    Boolean  @default(false)
 
-  // Images (stored as JSON array for PostgreSQL)
-  images      Json?      // Array of image URLs/paths
+  // Images (PostgreSQL supports JSON)
+  images      Json?    // Array of image URLs/paths
 
   // Metadata
   createdAt   DateTime @default(now())
