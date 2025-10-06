@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { PrismaClient } from '@prisma/client'
-import { authOptions } from '../auth/[...nextauth]/route'
+import { authOptions } from '../../../lib/auth'
 import { emailService } from '../../../lib/email'
 
 const prisma = new PrismaClient()
@@ -107,22 +107,3 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Helper function to trigger notifications (use this in other API routes)
-export async function sendNotification(type: string, userId: string, data: any = {}) {
-  try {
-    await fetch(`${process.env.NEXTAUTH_URL}/api/notifications`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.INTERNAL_API_KEY || 'internal'}`
-      },
-      body: JSON.stringify({
-        type,
-        userId,
-        data
-      })
-    })
-  } catch (error) {
-    console.error('Failed to send notification:', error)
-  }
-}

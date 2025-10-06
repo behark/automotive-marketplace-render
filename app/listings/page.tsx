@@ -1,8 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { FavoriteButton } from '../../components/favorite-button'
+
+export const dynamic = 'force-dynamic'
 
 interface Listing {
   id: string

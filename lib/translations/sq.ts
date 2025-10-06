@@ -272,7 +272,7 @@ export const sq = {
     sendMessage: 'Na Dërgoni një Mesazh',
     fullName: 'Emri i Plotë *',
     fullNamePlaceholder: 'Emri juaj i plotë',
-    emailAddress: 'Adresa e Email-it *',
+    contactEmailAddress: 'Adresa e Email-it *',
     emailPlaceholder: 'emaili.juaj@example.com',
     inquiryType: 'Lloji i Pyetjes',
     inquiryTypes: {
@@ -429,14 +429,13 @@ export const sq = {
     sortByDate: 'Rendit sipas Datës',
     exportPdf: 'Eksporto PDF',
     viewDetails: 'Shiko Detajet',
-    removeFromFavorites: 'Hiq nga të Preferuarat',
+    removeFavorite: 'Hiq nga të Preferuarat',
     failedToRemove: 'Dështoi heqja nga të preferuarat',
     sold: 'SHITUR',
     unavailable: 'JO E DISPONUESHME',
     signInToViewFavorites: 'Hyni për të parë të preferuarat tuaja',
     createAccountText: 'Krijoni një llogari ose hyni për të ruajtur makinat tuaja të preferuara dhe për t\'u qasur atyre në çdo kohë.',
     addToFavorites: 'Shto në të Preferuarat',
-    removeFromFavorites: 'Hiq nga të Preferuarat',
     signInToSave: 'Hyni për të ruajtur të preferuarat',
     saved: 'Ruajtur',
     save: 'Ruaj'
@@ -499,7 +498,7 @@ export const sq = {
     month: 'muaj',
     forever: 'përgjithmonë',
     mostPopular: 'Më i Popullarizuari',
-    currentPlan: 'Plani Aktual',
+    planCurrent: 'Plani Aktual',
     upgradeButton: 'Përmirëso',
     processing: 'Po përpunohet...',
 
@@ -613,7 +612,7 @@ export const sq = {
   },
 
   // Success/Error messages
-  messages: {
+  notifications: {
     success: {
       listingCreated: 'Shpallja u krijua me sukses!',
       listingUpdated: 'Shpallja u përditësua me sukses!',

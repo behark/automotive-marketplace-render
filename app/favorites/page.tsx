@@ -22,6 +22,7 @@ interface Favorite {
     status: string
     user: {
       name: string
+      email: string
     }
   }
 }
