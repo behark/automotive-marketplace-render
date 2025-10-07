@@ -44,8 +44,7 @@ export async function POST(request: NextRequest) {
       data: {
         name: `${firstName} ${lastName}`,
         email,
-        // Note: We're not storing password in our current schema
-        // You might want to add a password field to the User model
+        password: hashedPassword,
       },
       select: {
         id: true,
