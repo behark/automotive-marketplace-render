@@ -21,7 +21,7 @@ const faqs: FAQItem[] = [
     id: 2,
     category: 'buying',
     question: 'A mund të negocioj çmimin me shitësin?',
-    answer: 'Po, absolutisht! Shumica e shitësve janë të hapur për negociata. Mund të kontaktoni shitësin direkt përmes butonit "Kontakto Shitësin" në faqen e shpalljes. Jini të sjellshëm dhe profesional në komunikimet tuaja për rezultate më të mira.'
+    answer: 'Po, absolutisht! Shumica e shitësve janë të hapur për negociata. Mund të kontaktoni shitësin direkt përmes butonit &quot;Kontakto Shitësin&quot; në faqen e shpalljes. Jini të sjellshëm dhe profesional në komunikimet tuaja për rezultate më të mira.'
   },
   {
     id: 3,
@@ -53,7 +53,7 @@ const faqs: FAQItem[] = [
     id: 7,
     category: 'selling',
     question: 'Sa kohë zgjat shpallja ime?',
-    answer: 'Shpalljet standarde janë aktive për 90 ditë. Para se të skadojë shpallja, do të merrni njoftim me email për ta rinovuar atë. Mund të rinovoni shpalljen falas për 90 ditë shtesë. Nëse automjeti shitet, ju lutemi shënojeni shpalljen si "E Shitur" për të ndihmuar përdoruesit e tjerë.'
+    answer: 'Shpalljet standarde janë aktive për 90 ditë. Para se të skadojë shpallja, do të merrni njoftim me email për ta rinovuar atë. Mund të rinovoni shpalljen falas për 90 ditë shtesë. Nëse automjeti shitet, ju lutemi shënojeni shpalljen si &quot;E Shitur&quot; për të ndihmuar përdoruesit e tjerë.'
   },
   {
     id: 8,
@@ -85,13 +85,13 @@ const faqs: FAQItem[] = [
     id: 12,
     category: 'account',
     question: 'Kam harruar fjalëkalimin tim. Çfarë të bëj?',
-    answer: 'Nëse keni harruar fjalëkalimin, klikoni në "Keni harruar fjalëkalimin?" në faqen e hyrjes. Do të merrni një email me një lidhje për të rivendosur fjalëkalimin tuaj. Lidhja është e vlefshme për 24 orë. Nëse nuk merrni email-in, kontrolloni dosjen e spam-it ose na kontaktoni për ndihmë.'
+    answer: 'Nëse keni harruar fjalëkalimin, klikoni në &quot;Keni harruar fjalëkalimin?&quot; në faqen e hyrjes. Do të merrni një email me një lidhje për të rivendosur fjalëkalimin tuaj. Lidhja është e vlefshme për 24 orë. Nëse nuk merrni email-in, kontrolloni dosjen e spam-it ose na kontaktoni për ndihmë.'
   },
   {
     id: 13,
     category: 'account',
     question: 'Si mund të fshij llogarinë time?',
-    answer: 'Për të fshirë llogarinë tuaj, shkoni te Cilësimet > Llogaria > Fshi Llogarinë. Vini re që fshirja e llogarisë është e përhershme dhe nuk mund të zhbëhet. Të gjitha shpalljet tuaja do të hiqen dhe nuk do të keni më akses në mesazhet ose të dhënat e llogarisë. Nëse keni pagesa ose shitje të papërfunduara, duhet t\'i përfundoni ato para se të fshini llogarinë.'
+    answer: 'Për të fshirë llogarinë tuaj, shkoni te Cilësimet > Llogaria > Fshi Llogarinë. Vini re që fshirja e llogarisë është e përhershme dhe nuk mund të zhbëhet. Të gjitha shpalljet tuaja do të hiqen dhe nuk do të keni më akses në mesazhet ose të dhënat e llogarisë. Nëse keni pagesa ose shitje të papërfunduara, duhet t&apos;i përfundoni ato para se të fshini llogarinë.'
   },
 
   // Payment
@@ -125,7 +125,7 @@ const faqs: FAQItem[] = [
     id: 18,
     category: 'technical',
     question: 'Si mund të raportoj një shpallje të dyshimtë?',
-    answer: 'Nëse gjeni një shpallje që ju duket e dyshimtë ose mashtruese, klikoni butonin "Raporto" në shpallje. Do të keni mundësi të zgjidhni arsyen (çmim i dyshimtë, fotografi të vjedhura, informacion i rremë, etj.) dhe të shtoni detaje shtesë. Ekipi ynë do të hetojë raportin brenda 24-48 orëve. Të gjitha raportimet mbahen konfidenciale.'
+    answer: 'Nëse gjeni një shpallje që ju duket e dyshimtë ose mashtruese, klikoni butonin &quot;Raporto&quot; në shpallje. Do të keni mundësi të zgjidhni arsyen (çmim i dyshimtë, fotografi të vjedhura, informacion i rremë, etj.) dhe të shtoni detaje shtesë. Ekipi ynë do të hetojë raportin brenda 24-48 orëve. Të gjitha raportimet mbahen konfidenciale.'
   },
   {
     id: 19,
@@ -179,7 +179,7 @@ export default function SupportPage() {
       <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="text-center">
-            <h1 className="text-4xl font-bold mb-4">Si Mund t'ju Ndihmojmë?</h1>
+            <h1 className="text-4xl font-bold mb-4">Si Mund t&apos;ju Ndihmojmë?</h1>
             <p className="text-xl text-blue-100 mb-8">
               Gjeni përgjigje për pyetjet tuaja ose na kontaktoni drejtpërdrejt
             </p>
@@ -218,7 +218,7 @@ export default function SupportPage() {
               </svg>
             </div>
             <h3 className="text-lg font-semibold mb-2">Email</h3>
-            <p className="text-gray-600 mb-4">Dërgoni pyetjen tuaj dhe do t'ju përgjigjemi brenda 24 orëve</p>
+            <p className="text-gray-600 mb-4">Dërgoni pyetjen tuaj dhe do t&apos;ju përgjigjemi brenda 24 orëve</p>
             <a href="mailto:support@automotivemarketplace.com" className="text-blue-600 hover:underline">
               support@automotivemarketplace.com
             </a>
@@ -320,7 +320,7 @@ export default function SupportPage() {
           <h3 className="text-2xl font-bold text-gray-900 mb-4">Ende keni pyetje?</h3>
           <p className="text-gray-700 mb-6 max-w-2xl mx-auto">
             Nëse nuk gjetët përgjigjen që kërkoni, ekipi ynë i mbështetjes është gati të ju ndihmojë.
-            Na kontaktoni dhe ne do t'ju përgjigjemi sa më shpejt që të jetë e mundur.
+            Na kontaktoni dhe ne do t&apos;ju përgjigjemi sa më shpejt që të jetë e mundur.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a

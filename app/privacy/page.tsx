@@ -28,8 +28,8 @@ export default function PrivacyPage() {
             <div className="prose prose-gray max-w-none">
               <p className="text-gray-700 leading-relaxed mb-4">
                 Mirë se vini në Automotive Marketplace. Ne respektojmë privatësinë tuaj dhe jemi të përkushtuar të mbrojmë të dhënat tuaja personale.
-                Kjo politikë e privatësisë do t'ju informojë se si ne trajtojmë të dhënat tuaja personale kur vizitoni faqen tonë të internetit
-                dhe do t'ju tregojë për të drejtat tuaja të privatësisë dhe se si ligji ju mbron.
+                Kjo politikë e privatësisë do t&apos;ju informojë se si ne trajtojmë të dhënat tuaja personale kur vizitoni faqen tonë të internetit
+                dhe do t&apos;ju tregojë për të drejtat tuaja të privatësisë dhe se si ligji ju mbron.
               </p>
               <p className="text-gray-700 leading-relaxed">
                 Kjo politikë e privatësisë është në përputhje me Rregulloren e Përgjithshme të Mbrojtjes së të Dhënave (GDPR) dhe
@@ -188,7 +188,7 @@ export default function PrivacyPage() {
                 </li>
                 <li>
                   <strong>E drejta e portabilitetit:</strong> Ju keni të drejtë të kërkoni që ne
-                  t'ju transferojmë të dhënat që kemi mbledhur në një organizatë tjetër,
+                  t&apos;ju transferojmë të dhënat që kemi mbledhur në një organizatë tjetër,
                   ose drejtpërdrejt tek ju, në rrethana të caktuara.
                 </li>
               </ul>
@@ -233,7 +233,7 @@ export default function PrivacyPage() {
                 <div>
                   <h4 className="font-semibold text-gray-900">Cookies Funksionaliteti</h4>
                   <p className="text-gray-700">
-                    Këto cookies përdoren për t'ju njohur kur ktheheni në faqen tonë.
+                    Këto cookies përdoren për t&apos;ju njohur kur ktheheni në faqen tonë.
                     Kjo na mundëson të personalizojmë përmbajtjen tonë për ju dhe të
                     kujtojmë preferencat tuaja.
                   </p>
@@ -251,7 +251,7 @@ export default function PrivacyPage() {
 
               <p className="text-gray-700 leading-relaxed mt-4">
                 Ju mund të vendosni që shfletuesi juaj të refuzojë të gjitha ose disa cookies,
-                ose t'ju njoftojë kur faqet vendosin ose aksesojnë cookies. Nëse çaktivizoni ose
+                ose t&apos;ju njoftojë kur faqet vendosin ose aksesojnë cookies. Nëse çaktivizoni ose
                 refuzoni cookies, ju lutemi vini re se disa pjesë të kësaj faqe mund të bëhen
                 të paaksesueshme ose mund të mos funksionojnë siç duhet.
               </p>
@@ -282,7 +282,7 @@ export default function PrivacyPage() {
 
               <p className="text-gray-700 leading-relaxed mt-4">
                 Ne kemi vendosur gjithashtu procedura për të trajtuar çdo shkelje të supozuar të sigurisë
-                së të dhënave dhe do t'ju njoftojmë ju dhe çdo rregullator të aplikueshëm për një shkelje
+                së të dhënave dhe do t&apos;ju njoftojmë ju dhe çdo rregullator të aplikueshëm për një shkelje
                 kur jemi të detyruar ligjërisht ta bëjmë këtë.
               </p>
             </div>
@@ -344,7 +344,7 @@ export default function PrivacyPage() {
               <p className="text-gray-700 leading-relaxed mb-4">
                 Ne mund të përditësojmë këtë politikë privatësie herë pas here në përgjigje të
                 ndryshimeve ligjore, teknike ose të biznesit. Kur bëjmë ndryshime, do të
-                përditësojmë datën "E përditësuar më" në krye të kësaj politike.
+                përditësojmë datën &quot;E përditësuar më&quot; në krye të kësaj politike.
               </p>
 
               <p className="text-gray-700 leading-relaxed">
@@ -383,8 +383,8 @@ export default function PrivacyPage() {
           <div className="mt-12 pt-8 border-t border-gray-200">
             <p className="text-sm text-gray-500 text-center">
               Kjo politikë privatësie është hartuar në përputhje me Rregulloren e Përgjithshme të
-              Mbrojtjes së të Dhënave (GDPR) dhe Ligjin Nr. 9887, datë 10.03.2008 "Për mbrojtjen
-              e të dhënave personale" i Republikës së Shqipërisë.
+              Mbrojtjes së të Dhënave (GDPR) dhe Ligjin Nr. 9887, datë 10.03.2008 &quot;Për mbrojtjen
+              e të dhënave personale&quot; i Republikës së Shqipërisë.
             </p>
           </div>
         </div>

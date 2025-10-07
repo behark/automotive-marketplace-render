@@ -27,14 +27,14 @@ export default function TermsPage() {
             <h2 className="text-2xl font-bold text-gray-900 mb-4">1. Pranimi i Kushteve</h2>
             <div className="prose prose-gray max-w-none">
               <p className="text-gray-700 leading-relaxed mb-4">
-                Mirë se vini në Automotive Marketplace ("Platforma", "ne", "na" ose "tonë").
+                Mirë se vini në Automotive Marketplace (&quot;Platforma&quot;, &quot;ne&quot;, &quot;na&quot; ose &quot;tonë&quot;).
                 Duke aksesuar ose përdorur platformën tonë, ju pranoni të jeni të lidhur nga
-                këto Kushte të Shërbimit ("Kushtet"). Nëse nuk pajtoheni me këto Kushte,
+                këto Kushte të Shërbimit (&quot;Kushtet&quot;). Nëse nuk pajtoheni me këto Kushte,
                 ju lutemi mos përdorni Platformën tonë.
               </p>
               <p className="text-gray-700 leading-relaxed">
                 Këto Kushte përbëjnë një marrëveshje ligjërisht të detyrueshme midis jush
-                ("Përdoruesi" ose "ju") dhe Automotive Marketplace. Ju duhet të jeni të paktën
+                (&quot;Përdoruesi&quot; ose &quot;ju&quot;) dhe Automotive Marketplace. Ju duhet të jeni të paktën
                 18 vjeç për të përdorur këtë shërbim.
               </p>
             </div>
@@ -214,7 +214,7 @@ export default function TermsPage() {
             <div className="prose prose-gray max-w-none">
               <h3 className="text-xl font-semibold text-gray-900 mb-3">7.1 Përjashtimi i Garancive</h3>
               <p className="text-gray-700 leading-relaxed mb-4">
-                Platforma ofrohet "siç është" dhe "siç është në dispozicion" pa garanci të çfarëdo lloji,
+                Platforma ofrohet &quot;siç është&quot; dhe &quot;siç është në dispozicion&quot; pa garanci të çfarëdo lloji,
                 qoftë të shprehura ose të nënkuptuara. Ne nuk garantojmë që:
               </p>
               <ul className="list-disc pl-6 space-y-2 text-gray-700">
@@ -308,7 +308,7 @@ export default function TermsPage() {
               <p className="text-gray-700 leading-relaxed mb-4">
                 Çdo mosmarrëveshje që lind nga ose në lidhje me këto Kushte do të zgjidhet fillimisht
                 përmes negociatave miqësore. Nëse negociatat dështojnë brenda 30 ditëve, mosmarrëveshja
-                do t'i nënshtrohet juridiksionit ekskluziv të gjykatave të Tiranës, Shqipëri.
+                do t&apos;i nënshtrohet juridiksionit ekskluziv të gjykatave të Tiranës, Shqipëri.
               </p>
 
               <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-6">10.3 Zgjidhja Alternative e Mosmarrëveshjeve</h3>
