@@ -3,6 +3,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { aiOrchestrator } from '@/lib/ai/orchestrator';
+import { AlbanianChatbotService } from '@/lib/ai/chatbot';
 
 export async function POST(request: NextRequest) {
   try {
@@ -75,8 +76,9 @@ export async function GET(request: NextRequest) {
     }
 
     if (action === 'history') {
-      // Get conversation history
-      const history = await aiOrchestrator.services.chatbot.getConversationHistory(sessionId);
+      // Get conversation history using direct chatbot service
+      const chatbotService = new AlbanianChatbotService();
+      const history = await chatbotService.getConversationHistory(sessionId);
 
       return NextResponse.json({
         success: true,
@@ -94,7 +96,8 @@ export async function GET(request: NextRequest) {
       const startDate = new Date(searchParams.get('startDate') || Date.now() - 30 * 24 * 60 * 60 * 1000);
       const endDate = new Date(searchParams.get('endDate') || Date.now());
 
-      const analytics = await aiOrchestrator.services.chatbot.getConversationAnalytics(startDate, endDate);
+      const chatbotService = new AlbanianChatbotService();
+      const analytics = await chatbotService.getConversationAnalytics(startDate, endDate);
 
       return NextResponse.json({
         success: true,
@@ -129,7 +132,8 @@ export async function PUT(request: NextRequest) {
       // Escalate conversation to human agent
       const { reason = 'User requested human assistance' } = data || {};
 
-      await aiOrchestrator.services.chatbot.escalateToHuman(sessionId, reason);
+      const chatbotService = new AlbanianChatbotService();
+      await chatbotService.escalateToHuman(sessionId, reason);
 
       return NextResponse.json({
         success: true,

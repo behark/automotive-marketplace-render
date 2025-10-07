@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { aiOrchestrator } from '@/lib/ai/orchestrator';
 import { aiConfig } from '@/lib/ai/config';
+import { DemandForecastingService } from '@/lib/ai/demand-forecasting';
 
 export async function POST(request: NextRequest) {
   try {
@@ -60,7 +61,8 @@ export async function GET(request: NextRequest) {
 
     if (type === 'market_trends') {
       // Get market trends
-      const trends = await aiOrchestrator.services.demandForecasting.generateMarketTrends(region, period);
+      const forecastingService = new DemandForecastingService();
+      const trends = await forecastingService.generateMarketTrends(region, period);
 
       return NextResponse.json({
         success: true,
@@ -74,7 +76,8 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: 'Premium subscription required' }, { status: 403 });
       }
 
-      const opportunities = await aiOrchestrator.services.demandForecasting.identifyInvestmentOpportunities(region);
+      const forecastingService = new DemandForecastingService();
+      const opportunities = await forecastingService.identifyInvestmentOpportunities(region);
 
       return NextResponse.json({
         success: true,

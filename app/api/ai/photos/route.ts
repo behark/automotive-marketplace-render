@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { aiOrchestrator } from '@/lib/ai/orchestrator';
 import { prisma } from '@/lib/prisma';
+import { PhotoEnhancementService } from '@/lib/ai/photo-enhancement';
 
 export async function POST(request: NextRequest) {
   try {
@@ -38,7 +39,8 @@ export async function POST(request: NextRequest) {
       }
 
       // Analyze single photo
-      const result = await aiOrchestrator.services.photoEnhancement.analyzePhoto(imagePath, listingId);
+      const photoService = new PhotoEnhancementService();
+      const result = await photoService.analyzePhoto(imagePath, listingId);
 
       return NextResponse.json({
         success: true,
@@ -53,7 +55,8 @@ export async function POST(request: NextRequest) {
       }
 
       // Analyze photo sequence
-      const result = await aiOrchestrator.services.photoEnhancement.analyzePhotoSequence(images, listingId);
+      const photoService = new PhotoEnhancementService();
+      const result = await photoService.analyzePhotoSequence(images, listingId);
 
       return NextResponse.json({
         success: true,
