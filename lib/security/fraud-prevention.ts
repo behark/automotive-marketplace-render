@@ -1,6 +1,18 @@
 import { PrismaClient } from '@prisma/client'
 import crypto from 'crypto'
-import type { Express } from 'express'
+
+// Type definition for file uploads (replaces Express.Multer.File)
+type MulterFile = {
+  fieldname: string
+  originalname: string
+  encoding: string
+  mimetype: string
+  size: number
+  buffer: Buffer
+  destination?: string
+  filename?: string
+  path?: string
+}
 
 const prisma = new PrismaClient()
 
@@ -350,9 +362,9 @@ export class FraudPreventionService {
   static async verifyVehicleDocuments(
     listingId: string,
     documents: {
-      registration?: Express.Multer.File
-      insurance?: Express.Multer.File
-      technicalInspection?: Express.Multer.File
+      registration?: MulterFile
+      insurance?: MulterFile
+      technicalInspection?: MulterFile
     }
   ): Promise<{ success: boolean; error?: string }> {
     try {
@@ -403,7 +415,7 @@ export class FraudPreventionService {
   /**
    * Process registration document with OCR
    */
-  private static async processRegistrationDocument(file: Express.Multer.File): Promise<{
+  private static async processRegistrationDocument(file: MulterFile): Promise<{
     isValid: boolean
     extractedData?: any
   }> {
@@ -426,7 +438,7 @@ export class FraudPreventionService {
   /**
    * Process insurance document
    */
-  private static async processInsuranceDocument(file: Express.Multer.File): Promise<{
+  private static async processInsuranceDocument(file: MulterFile): Promise<{
     isValid: boolean
     expiryDate?: Date
   }> {
@@ -443,7 +455,7 @@ export class FraudPreventionService {
   /**
    * Process technical inspection document
    */
-  private static async processTechnicalInspectionDocument(file: Express.Multer.File): Promise<{
+  private static async processTechnicalInspectionDocument(file: MulterFile): Promise<{
     isValid: boolean
     expiryDate?: Date
   }> {
