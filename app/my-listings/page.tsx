@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 
 interface Listing {
   id: string
@@ -254,10 +255,12 @@ export default function MyListingsPage() {
                   {/* Image */}
                   <div className="relative h-48 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                     {listing.images && listing.images.length > 0 ? (
-                      <img
+                      <Image
                         src={listing.images[0]}
                         alt={listing.title}
-                        className="w-full h-48 object-cover"
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        className="object-cover"
                       />
                     ) : (
                       <svg className="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

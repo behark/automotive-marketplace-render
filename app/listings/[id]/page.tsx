@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
+import Image from 'next/image'
 import { FavoriteButton } from '../../../components/favorite-button'
 
 export const dynamic = 'force-dynamic'
@@ -155,12 +156,15 @@ export default function ListingDetailPage() {
             {/* Image Gallery */}
             <div className="bg-white rounded-lg shadow-md overflow-hidden">
               <div className="relative">
-                <div className="aspect-w-16 aspect-h-9 bg-gray-200">
+                <div className="aspect-w-16 aspect-h-9 bg-gray-200 relative h-96">
                   {listing.images && listing.images.length > 0 ? (
-                    <img
+                    <Image
                       src={listing.images[currentImageIndex]}
                       alt={`${listing.make} ${listing.model}`}
-                      className="w-full h-96 object-cover"
+                      fill
+                      sizes="(max-width: 1024px) 100vw, 66vw"
+                      priority
+                      className="object-cover"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement
                         target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik02MCA2MEgxNDBWMTQwSDYwVjYwWiIgZmlsbD0iI0Q1RDdEQSIvPgo8L3N2Zz4K'
@@ -212,14 +216,16 @@ export default function ListingDetailPage() {
                       <button
                         key={index}
                         onClick={() => setCurrentImageIndex(index)}
-                        className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden ${
+                        className={`relative flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden ${
                           currentImageIndex === index ? 'ring-2 ring-blue-600' : ''
                         }`}
                       >
-                        <img
+                        <Image
                           src={image}
                           alt={`Thumbnail ${index + 1}`}
-                          className="w-full h-full object-cover"
+                          fill
+                          sizes="64px"
+                          className="object-cover"
                           onError={(e) => {
                             const target = e.target as HTMLImageElement
                             target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik02MCA2MEgxNDBWMTQwSDYwVjYwWiIgZmlsbD0iI0Q1RDdEQSIvPgo8L3N2Zz4K'

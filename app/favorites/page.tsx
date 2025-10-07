@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
+import Image from 'next/image'
 
 export const dynamic = 'force-dynamic'
 
@@ -190,10 +191,12 @@ export default function FavoritesPage() {
                   {/* Image */}
                   <div className="relative h-48 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                     {favorite.listing.images && favorite.listing.images.length > 0 ? (
-                      <img
+                      <Image
                         src={favorite.listing.images[0]}
                         alt={favorite.listing.title}
-                        className="w-full h-48 object-cover"
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        className="object-cover"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement
                           target.style.display = 'none'
