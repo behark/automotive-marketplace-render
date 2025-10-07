@@ -57,8 +57,8 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const type = searchParams.get('type') || 'market_trends';
-    const region = searchParams.get('region');
-    const period = searchParams.get('period');
+    const region = searchParams.get('region') || undefined;
+    const period = searchParams.get('period') || undefined;
 
     if (type === 'market_trends') {
       // Get market trends
