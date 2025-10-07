@@ -226,7 +226,14 @@ async function getRegionalRevenue(startDate: Date) {
     }
   })
 
-  const revenueByRegion = {}
+  const revenueByRegion: Record<string, {
+    totalListings: number;
+    soldListings: number;
+    totalRevenue: number;
+    avgPrice: number;
+    commissionRevenue?: number;
+    conversionRate?: number;
+  }> = {}
   listings.forEach(listing => {
     const region = getAlbanianRegion(listing.city)
     if (!revenueByRegion[region]) {
@@ -475,7 +482,7 @@ function getSeasonalMultiplier(month: number) {
 }
 
 function getAlbanianRegion(city: string) {
-  const regionMap = {
+  const regionMap: Record<string, string> = {
     'Tiranë': 'Qendrore',
     'Durrës': 'Qendrore',
     'Kavajë': 'Qendrore',

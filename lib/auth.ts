@@ -5,7 +5,14 @@ import { PrismaAdapter } from '@auth/prisma-adapter'
 import { PrismaClient } from '@prisma/client'
 import bcrypt from 'bcryptjs'
 import { MFAService } from './security/mfa-service'
-import geoip from 'geoip-lite'
+// Graceful import for build compatibility
+let geoip: any
+try {
+  geoip = require('geoip-lite')
+} catch (error) {
+  console.warn('GeoIP lookup not available:', error)
+  geoip = { lookup: () => null }
+}
 import UAParser from 'ua-parser-js'
 
 const prisma = new PrismaClient()

@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
 import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
+
+export const dynamic = 'force-dynamic'
+import { authOptions } from '@/lib/auth'
 
 const prisma = new PrismaClient()
 
@@ -357,7 +361,7 @@ async function getPriceTrends(startDate: Date, regionFilter: any) {
   })
 
   // Group by make and calculate trends
-  const makesTrends = {}
+  const makesTrends: Record<string, Array<{ price: number; date: Date; year: number }>> = {}
   priceData.forEach(listing => {
     if (!makesTrends[listing.make]) {
       makesTrends[listing.make] = []
@@ -370,7 +374,7 @@ async function getPriceTrends(startDate: Date, regionFilter: any) {
   })
 
   // Calculate trend direction for each make
-  const trends = Object.entries(makesTrends).map(([make, prices]: [string, any[]]) => {
+  const trends = Object.entries(makesTrends).map(([make, prices]: [string, Array<{ price: number; date: Date; year: number }>]) => {
     if (prices.length < 2) return null
 
     const recentPrices = prices.slice(-10) // Last 10 listings
