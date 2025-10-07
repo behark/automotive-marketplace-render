@@ -13,12 +13,22 @@ export interface AIProvider {
 
 export class OpenAIProvider implements AIProvider {
   public name = 'openai';
-  private client: OpenAI;
+  private client: OpenAI | null = null;
+  private apiKey?: string;
 
   constructor(apiKey?: string) {
-    this.client = new OpenAI({
-      apiKey: apiKey || aiConfig.apiKeys.openai || process.env.OPENAI_API_KEY,
-    });
+    this.apiKey = apiKey;
+  }
+
+  private getClient(): OpenAI {
+    if (!this.client) {
+      const key = this.apiKey || aiConfig.apiKeys.openai || process.env.OPENAI_API_KEY;
+      if (!key) {
+        throw new Error('OpenAI API key is not configured. Set OPENAI_API_KEY environment variable.');
+      }
+      this.client = new OpenAI({ apiKey: key });
+    }
+    return this.client;
   }
 
   async generateText(prompt: string, options: {
@@ -36,7 +46,7 @@ export class OpenAIProvider implements AIProvider {
 
       messages.push({ role: 'user', content: prompt });
 
-      const response = await this.client.chat.completions.create({
+      const response = await this.getClient().chat.completions.create({
         model: options.model || 'gpt-4-turbo-preview',
         messages,
         temperature: options.temperature || 0.7,
@@ -69,11 +79,11 @@ export class OpenAIProvider implements AIProvider {
 
   async embedText(text: string): Promise<number[]> {
     try {
-      const response = await this.client.embeddings.create({
+      const response = await this.getClient().embeddings.create({
         model: "text-embedding-3-small",
         input: text
       });
-      
+
       return response.data[0].embedding as number[];
     } catch (error) {
       console.error('OpenAI embedding error:', error);
@@ -109,10 +119,19 @@ export class OpenAIProvider implements AIProvider {
 
 export class HuggingFaceProvider implements AIProvider {
   public name = 'huggingface';
-  private client: HfInference;
+  private client: HfInference | null = null;
+  private apiKey?: string;
 
   constructor(apiKey?: string) {
-    this.client = new HfInference(apiKey || aiConfig.apiKeys.huggingface || process.env.HUGGINGFACE_API_KEY);
+    this.apiKey = apiKey;
+  }
+
+  private getClient(): HfInference {
+    if (!this.client) {
+      const key = this.apiKey || aiConfig.apiKeys.huggingface || process.env.HUGGINGFACE_API_KEY;
+      this.client = new HfInference(key);
+    }
+    return this.client;
   }
 
   async generateText(prompt: string, options: {
@@ -121,7 +140,7 @@ export class HuggingFaceProvider implements AIProvider {
     maxTokens?: number;
   } = {}): Promise<string> {
     try {
-      const response = await this.client.textGeneration({
+      const response = await this.getClient().textGeneration({
         model: options.model || 'microsoft/DialoGPT-medium',
         inputs: prompt,
         parameters: {
@@ -140,7 +159,7 @@ export class HuggingFaceProvider implements AIProvider {
 
   async analyzeText(text: string, options: any = {}): Promise<any> {
     try {
-      const response = await this.client.textClassification({
+      const response = await this.getClient().textClassification({
         model: 'cardiffnlp/twitter-roberta-base-sentiment-latest',
         inputs: text,
       });
@@ -154,7 +173,7 @@ export class HuggingFaceProvider implements AIProvider {
 
   async embedText(text: string): Promise<number[]> {
     try {
-      const response = await this.client.featureExtraction({
+      const response = await this.getClient().featureExtraction({
         model: 'sentence-transformers/all-MiniLM-L6-v2',
         inputs: text,
       });
