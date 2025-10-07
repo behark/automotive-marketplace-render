@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Check if user is a dealer
-    if (user.role !== 'dealer' && user.role !== 'admin') {
+    if ((user as any).role !== 'dealer' && (user as any).role !== 'admin') {
       return NextResponse.json({ error: 'Access denied - dealers only' }, { status: 403 })
     }
 

@@ -72,7 +72,7 @@ export async function GET(request: NextRequest) {
 
     if (type === 'investment_opportunities') {
       // Get investment opportunities (premium feature)
-      if (session.user.plan === 'basic') {
+      if ((session.user as any).plan === 'basic') {
         return NextResponse.json({ error: 'Premium subscription required' }, { status: 403 });
       }
 

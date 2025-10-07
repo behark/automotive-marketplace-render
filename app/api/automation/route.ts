@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
     const session = await getServerSession()
 
     // Only allow admin users to access automation status
-    if (!session?.user || session.user.role !== 'admin') {
+    if (!session?.user || (session.user as any).role !== 'admin') {
       return NextResponse.json(
         { error: 'Unauthorized - Admin access required' },
         { status: 401 }
@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
     const session = await getServerSession()
 
     // Only allow admin users to manage automation
-    if (!session?.user || session.user.role !== 'admin') {
+    if (!session?.user || (session.user as any).role !== 'admin') {
       return NextResponse.json(
         { error: 'Unauthorized - Admin access required' },
         { status: 401 }
@@ -168,7 +168,7 @@ export async function PUT(request: NextRequest) {
     const session = await getServerSession()
 
     // Only allow admin users to update automation settings
-    if (!session?.user || session.user.role !== 'admin') {
+    if (!session?.user || (session.user as any).role !== 'admin') {
       return NextResponse.json(
         { error: 'Unauthorized - Admin access required' },
         { status: 401 }

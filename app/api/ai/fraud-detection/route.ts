@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
       }
 
       // Verify access permissions
-      if (session.user.role !== 'admin') {
+      if ((session.user as any).role !== 'admin') {
         const listing = await prisma.listing.findUnique({
           where: { id: listingId },
           select: { userId: true },
@@ -83,7 +83,7 @@ export async function GET(request: NextRequest) {
 
       if (listingId) {
         whereClause.listingId = listingId;
-      } else if (session.user.role !== 'admin') {
+      } else if ((session.user as any).role !== 'admin') {
         // Regular users can only see their own listings' alerts
         const userListings = await prisma.listing.findMany({
           where: { userId: session.user.id },
@@ -115,7 +115,7 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    if (type === 'statistics' && session.user.role === 'admin') {
+    if (type === 'statistics' && (session.user as any).role === 'admin') {
       // Get fraud detection statistics (admin only)
       const stats = await prisma.fraudAlert.groupBy({
         by: ['alertType', 'severity'],
@@ -168,7 +168,7 @@ export async function GET(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const session = await getServerSession();
-    if (!session?.user || session.user.role !== 'admin') {
+    if (!session?.user || (session.user as any).role !== 'admin') {
       return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
     }
 

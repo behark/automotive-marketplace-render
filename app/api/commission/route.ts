@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Calculate commission
-    const commissionRate = COMMISSION_RATES[user.plan as keyof typeof COMMISSION_RATES] || COMMISSION_RATES.basic
+    const commissionRate = COMMISSION_RATES[(user as any).plan as keyof typeof COMMISSION_RATES] || COMMISSION_RATES.basic
     const commissionAmount = Math.round(soldPrice * commissionRate)
     const dueDate = new Date()
     dueDate.setDate(dueDate.getDate() + 30) // Commission due in 30 days
@@ -264,7 +264,7 @@ export async function PUT(request: NextRequest) {
       where: { email: session.user.email }
     })
 
-    if (!user || user.role !== 'admin') {
+    if (!user || (user as any).role !== 'admin') {
       return NextResponse.json(
         { error: 'Admin access required' },
         { status: 403 }

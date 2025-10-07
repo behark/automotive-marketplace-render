@@ -195,7 +195,7 @@ export async function POST(request: NextRequest) {
           ...metadata,
           commissionRate: partner.commissionRate,
           basePrice: partner.basePrice,
-          userPlan: user.plan
+          userPlan: (user as any).plan
         }
       }
     })
@@ -283,7 +283,7 @@ export async function GET(request: NextRequest) {
       summary: {
         totalEarnings: totalEarnings._sum.commission || 0,
         pendingEarnings: pendingEarnings._sum.commission || 0,
-        userPlan: user.plan
+        userPlan: (user as any).plan
       }
     })
 
@@ -312,7 +312,7 @@ export async function PUT(request: NextRequest) {
       where: { email: session.user.email }
     })
 
-    if (!user || user.role !== 'admin') {
+    if (!user || (user as any).role !== 'admin') {
       return NextResponse.json(
         { error: 'Admin access required' },
         { status: 403 }

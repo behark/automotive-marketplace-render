@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
       where: { email: session.user.email }
     })
 
-    if (!user || user.role !== 'admin') {
+    if (!user || (user as any).role !== 'admin') {
       return NextResponse.json(
         { error: 'Admin access required' },
         { status: 403 }
@@ -302,7 +302,7 @@ export async function GET(request: NextRequest) {
     }
 
     // For regular users, only show their own data
-    const isAdmin = user.role === 'admin'
+    const isAdmin = (user as any).role === 'admin'
     const targetUserId = isAdmin && sellerId ? sellerId : user.id
 
     // Get pending/due commissions

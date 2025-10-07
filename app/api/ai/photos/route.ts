@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Listing not found' }, { status: 404 });
     }
 
-    if (listing.userId !== session.user.id && session.user.role !== 'admin') {
+    if (listing.userId !== session.user.id && (session.user as any).role !== 'admin') {
       return NextResponse.json({ error: 'Access denied' }, { status: 403 });
     }
 
@@ -106,7 +106,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Verify access (owner or admin can view)
-    if (listing.userId !== session.user.id && session.user.role !== 'admin') {
+    if (listing.userId !== session.user.id && (session.user as any).role !== 'admin') {
       return NextResponse.json({ error: 'Access denied' }, { status: 403 });
     }
 

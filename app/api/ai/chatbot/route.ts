@@ -89,7 +89,7 @@ export async function GET(request: NextRequest) {
     if (action === 'analytics') {
       // Get conversation analytics (admin only)
       const session = await getServerSession();
-      if (!session?.user || session.user.role !== 'admin') {
+      if (!session?.user || (session.user as any).role !== 'admin') {
         return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
       }
 
@@ -163,7 +163,7 @@ export async function PUT(request: NextRequest) {
 
     if (action === 'resolve') {
       // Mark conversation as resolved (admin only)
-      if (session.user.role !== 'admin') {
+      if ((session.user as any).role !== 'admin') {
         return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
       }
 

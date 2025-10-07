@@ -300,7 +300,7 @@ export async function GET(request: NextRequest) {
     const activeSubscription = user.subscriptions[0]
 
     return NextResponse.json({
-      currentPlan: user.plan,
+      currentPlan: (user as any).plan,
       subscriptionStatus: user.subscriptionStatus,
       subscription: activeSubscription ? {
         id: activeSubscription.id,

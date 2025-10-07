@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
       }
 
       // Verify user owns the listing or is admin
-      if (listing.userId !== session.user.id && session.user.role !== 'admin') {
+      if (listing.userId !== session.user.id && (session.user as any).role !== 'admin') {
         return NextResponse.json({ error: 'Access denied' }, { status: 403 });
       }
     }

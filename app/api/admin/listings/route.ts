@@ -17,7 +17,7 @@ async function checkAdminPermissions(request: NextRequest) {
     where: { email: session.user.email }
   })
 
-  if (!user || user.role !== 'admin') {
+  if (!user || (user as any).role !== 'admin') {
     return { error: 'Admin access required', status: 403 }
   }
 

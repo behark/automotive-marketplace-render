@@ -314,7 +314,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       availableEnhancements,
       activeEnhancements,
-      userPlan: user.plan
+      userPlan: (user as any).plan
     })
 
   } catch (error) {

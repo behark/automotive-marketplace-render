@@ -17,7 +17,7 @@ async function checkAdminPermissions() {
     where: { email: session.user.email }
   })
 
-  if (!user || user.role !== 'admin') {
+  if (!user || (user as any).role !== 'admin') {
     return { error: 'Admin access required', status: 403 }
   }
 
@@ -96,7 +96,7 @@ export async function GET(request: NextRequest) {
         name: user.name,
         email: user.email,
         role: user.role,
-        plan: user.plan,
+        plan: (user as any).plan,
         subscriptionStatus: user.subscriptionStatus,
         createdAt: user.createdAt,
         analytics: {

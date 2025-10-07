@@ -290,8 +290,8 @@ export async function GET(request: NextRequest) {
       ...config,
       priceFormatted: `€${(config.price / 100).toFixed(2)}`,
       // Apply plan discounts
-      discountedPrice: user.plan === 'enterprise' ? Math.round(config.price * 0.8) :
-                      user.plan === 'dealer' ? Math.round(config.price * 0.9) :
+      discountedPrice: (user as any).plan === 'enterprise' ? Math.round(config.price * 0.8) :
+                      (user as any).plan === 'dealer' ? Math.round(config.price * 0.9) :
                       config.price
     }))
 
@@ -322,7 +322,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       availableServices,
       serviceRequests,
-      userPlan: user.plan,
+      userPlan: (user as any).plan,
       planBenefits: {
         enterprise: { discount: '20%', priorityService: true, freeInspections: 2 },
         dealer: { discount: '10%', priorityService: true, freeInspections: 1 },
@@ -388,7 +388,7 @@ export async function PUT(request: NextRequest) {
 
     // Check permissions
     const isOwner = enhancement.userId === user.id
-    const isAdmin = user.role === 'admin'
+    const isAdmin = (user as any).role === 'admin'
 
     if (!isOwner && !isAdmin) {
       return NextResponse.json(

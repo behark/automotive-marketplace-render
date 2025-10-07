@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
       where: { email: session.user.email }
     })
 
-    if (!user || user.role !== 'admin') {
+    if (!user || (user as any).role !== 'admin') {
       return NextResponse.json(
         { error: 'Admin access required' },
         { status: 403 }
@@ -134,7 +134,7 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const isAdmin = user.role === 'admin'
+    const isAdmin = (user as any).role === 'admin'
 
     // Get upcoming commission invoices
     const upcomingCommissions = await prisma.commission.count({
