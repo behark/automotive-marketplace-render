@@ -237,7 +237,7 @@ export class MFAService {
         data: {
           mfaEnabled: false,
           mfaSecret: null,
-          mfaBackupCodes: null,
+          mfaBackupCodes: undefined,
           mfaSetupAt: null
         }
       })

@@ -99,7 +99,7 @@ export class FraudPreventionService {
       return { success: true, status: finalStatus, alerts }
     } catch (error) {
       console.error('Stolen vehicle check failed:', error)
-      return { success: false, error: 'Kontrollimi i automjetit dështoi' }
+      return { success: false, status: 'pending', error: 'Kontrollimi i automjetit dështoi' }
     }
   }
 

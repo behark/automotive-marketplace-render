@@ -282,7 +282,7 @@ export class AIOrchestrator {
       return result;
     } catch (error) {
       job.status = 'failed';
-      job.error = error.message;
+      job.error = error instanceof Error ? error.message : 'Unknown error';
       job.processedAt = new Date();
 
       this.updateMetrics(startTime, false);

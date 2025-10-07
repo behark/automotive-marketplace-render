@@ -90,7 +90,7 @@ export class SmartRecommendationService {
       };
     } catch (error) {
       console.error('Recommendation generation failed:', error);
-      throw new Error(`Recommendation generation failed: ${error.message}`);
+      throw new Error(`Recommendation generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 

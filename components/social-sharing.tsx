@@ -149,7 +149,6 @@ export function SocialSharing({
         {/* Facebook */}
         <FacebookShareButton
           url={shareData.url}
-          quote={shareData.description}
           className="flex flex-col items-center p-3 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors group"
           onClick={() => handleShare('facebook')}
         >

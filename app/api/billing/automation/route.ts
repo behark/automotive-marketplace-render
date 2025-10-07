@@ -513,7 +513,7 @@ async function processLeadCreditTopup(executeNow: boolean) {
       const paymentIntent = await stripe.paymentIntents.create({
         amount: BILLING_CONFIG.leadCredits.topupAmount,
         currency: 'eur',
-        customer: user.stripeCustomerId,
+        customer: user.stripeCustomerId || undefined,
         metadata: {
           type: 'lead_credit_topup',
           userId: user.id,
@@ -584,11 +584,6 @@ async function processLateFees(executeNow: boolean) {
           where: { id: commission.id },
           data: {
             commissionAmount: newTotal,
-            metadata: {
-              originalAmount: commission.commissionAmount,
-              lateFee: lateFee,
-              daysOverdue: daysOverdue
-            },
             updatedAt: new Date()
           }
         })

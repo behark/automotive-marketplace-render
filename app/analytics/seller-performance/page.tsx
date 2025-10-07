@@ -1,9 +1,10 @@
-import SellerPerformanceDashboard from '../../../components/analytics/seller-performance-dashboard'
+import SellerPerformanceDashboard from "../../../components/analytics/seller-performance-dashboard";
 
 export const metadata = {
-  title: 'Paneli i Performancës së Shitësit - AutoMarket Albania',
-  description: 'Analizoni performancën tuaj në tregun automobilistik shqiptar me analiza të detajuara dhe krahasime me tregun.',
-}
+  title: "Paneli i Performancës së Shitësit - AutoMarket Albania",
+  description:
+    "Analizoni performancën tuaj në tregun automobilistik shqiptar me analiza të detajuara dhe krahasime me tregun.",
+};
 
 export default function SellerPerformancePage() {
   return (
@@ -12,5 +13,5 @@ export default function SellerPerformancePage() {
         <SellerPerformanceDashboard />
       </div>
     </div>
-  )
+  );
 }

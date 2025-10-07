@@ -69,7 +69,7 @@ export class IntelligentPricingService {
       return analysis;
     } catch (error) {
       console.error('Pricing analysis failed:', error);
-      throw new Error(`Pricing analysis failed: ${error.message}`);
+      throw new Error(`Pricing analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -384,7 +384,13 @@ Konsideroni:
 
     for (const listing of listings) {
       try {
-        await this.analyzePricing(listing);
+        // Transform listing data to match ListingData interface
+        const listingData: ListingData = {
+          ...listing,
+          region: listing.region || undefined,
+          images: listing.images as string[] || undefined,
+        };
+        await this.analyzePricing(listingData);
         await new Promise(resolve => setTimeout(resolve, 1000)); // Rate limiting
       } catch (error) {
         console.error(`Failed to process listing ${listing.id}:`, error);

@@ -262,7 +262,7 @@ export async function GET(request: NextRequest) {
       priceFormatted: `€${(config.price / 100).toFixed(2)}`
     }))
 
-    let activeEnhancements = []
+    let activeEnhancements: any[] = []
 
     if (listingId) {
       // Get active enhancements for specific listing

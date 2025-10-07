@@ -2,8 +2,22 @@
 
 import { useState } from 'react'
 import { MessageCircle, Phone, Share2, Copy, Check, User } from 'lucide-react'
-import { useWhatsApp, type CarListing } from '../lib/whatsapp'
+import { whatsappService, WhatsAppUtils } from '../lib/whatsapp'
 import { useCurrency } from '../lib/currency'
+
+// Define CarListing type locally since it's not exported from whatsapp
+interface CarListing {
+  id: string
+  title: string
+  make: string
+  model: string
+  year: number
+  price: number
+  mileage: number
+  fuelType: string
+  transmission: string
+  city: string
+}
 
 interface WhatsAppContactProps {
   listing: CarListing
@@ -20,7 +34,6 @@ export function WhatsAppContact({
   showBusinessOptions = true,
   className = ""
 }: WhatsAppContactProps) {
-  const { generateMessage, createUrl, generateBusinessMessage, isAlbanianMobile, getOperator } = useWhatsApp()
   const { formatPrice } = useCurrency()
   const [selectedTemplate, setSelectedTemplate] = useState<'custom' | 'price' | 'details' | 'viewing' | 'financing'>('custom')
   const [customMessage, setCustomMessage] = useState('')
@@ -32,27 +45,33 @@ export function WhatsAppContact({
     return null
   }
 
-  const isValidPhone = isAlbanianMobile(sellerPhone)
-  const operator = getOperator(sellerPhone)
+  const isValidPhone = sellerPhone.startsWith('+355') || sellerPhone.match(/^06[6-9]\d{7}$/)
+  const operator = sellerPhone.match(/06[6-9]/) ? 'mobile' : 'unknown'
 
   const getMessageContent = () => {
+    // Generate a simple WhatsApp message
+    const baseMessage = `Përshëndetje${sellerName ? ` ${sellerName}` : ''},\n\nJam i/e interesuar për makinën tuaj:\n${listing.title}\n€${formatPrice(listing.price)}`
+    
     switch (selectedTemplate) {
       case 'custom':
-        return customMessage || generateMessage(listing, buyerName || undefined)
+        return customMessage || baseMessage
       case 'price':
+        return `${baseMessage}\n\nA ka mundësi për negocim në çmim?`
       case 'details':
+        return `${baseMessage}\n\nMund të më jepni më shumë detaje për këtë makinë?`
       case 'viewing':
+        return `${baseMessage}\n\nKur mund ta shoh makinën?`
       case 'financing':
-        return generateBusinessMessage(listing, selectedTemplate)
+        return `${baseMessage}\n\nA ofroni mundësi financimi?`
       default:
-        return generateMessage(listing, buyerName || undefined)
+        return baseMessage
     }
   }
 
   const handleWhatsAppClick = () => {
     try {
       const message = getMessageContent()
-      const url = createUrl(sellerPhone, message)
+      const url = WhatsAppUtils.generateContactUrl(sellerPhone, message)
       window.open(url, '_blank')
     } catch (error) {
       console.error('Error creating WhatsApp URL:', error)
@@ -249,7 +268,7 @@ export function WhatsAppQuickContact({
   sellerPhone?: string
   className?: string
 }) {
-  const { generateMessage, createUrl } = useWhatsApp()
+  // Use WhatsAppUtils directly
 
   if (!sellerPhone) {
     return null
@@ -257,8 +276,8 @@ export function WhatsAppQuickContact({
 
   const handleClick = () => {
     try {
-      const message = generateMessage(listing)
-      const url = createUrl(sellerPhone, message)
+      const message = `Përshëndetje,\n\nJam i/e interesuar për makinën:\n${listing.title}\n€${listing.price}`
+      const url = WhatsAppUtils.generateContactUrl(sellerPhone, message)
       window.open(url, '_blank')
     } catch (error) {
       console.error('Error creating WhatsApp URL:', error)
@@ -286,11 +305,11 @@ export function WhatsAppShare({
   websiteUrl?: string
   className?: string
 }) {
-  const { generateSharingMessage } = useWhatsApp()
+  // Generate sharing message directly
 
   const handleShare = () => {
     try {
-      const message = generateSharingMessage(listing, websiteUrl)
+      const message = `Shiko këtë makinë të bukur: ${listing.title}\n${websiteUrl || ''}`
       const url = `https://wa.me/?text=${encodeURIComponent(message)}`
       window.open(url, '_blank')
     } catch (error) {

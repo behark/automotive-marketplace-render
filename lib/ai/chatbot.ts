@@ -631,11 +631,11 @@ Maintain a friendly and professional tone. Maximum 150 words.`;
         content,
         intent: intentAnalysis?.intent || response?.intent,
         confidence: intentAnalysis?.confidence || response?.confidence,
-        context: intentAnalysis ? {
+        context: intentAnalysis ? JSON.parse(JSON.stringify({
           entities: intentAnalysis.entities,
           sentiment: intentAnalysis.sentiment,
           urgency: intentAnalysis.urgency,
-        } : null,
+        })) : undefined,
         needsEscalation: response?.needsEscalation || false,
       },
     });

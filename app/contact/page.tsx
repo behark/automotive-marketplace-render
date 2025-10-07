@@ -47,7 +47,7 @@ export default function ContactPage() {
           </div>
           <h2 className="text-2xl font-semibold text-gray-900 mb-4">Thank You!</h2>
           <p className="text-gray-600 mb-6">
-            Your message has been sent successfully. We'll get back to you within 24 hours.
+            Your message has been sent successfully. We&apos;ll get back to you within 24 hours.
           </p>
           <button
             onClick={() => setSubmitted(false)}
@@ -70,7 +70,7 @@ export default function ContactPage() {
               Contact Us
             </h1>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Have a question or need help? We're here to assist you with your automotive marketplace experience.
+              Have a question or need help? We&apos;re here to assist you with your automotive marketplace experience.
             </p>
           </div>
         </div>
@@ -311,7 +311,7 @@ export default function ContactPage() {
             <div className="bg-white rounded-lg shadow-md p-6">
               <h3 className="font-semibold text-gray-900 mb-3">How do I create a listing?</h3>
               <p className="text-gray-600">
-                Click on "Sell Your Car" in the navigation menu and follow our step-by-step process.
+                Click on &quot;Sell Your Car&quot; in the navigation menu and follow our step-by-step process.
                 It takes just a few minutes to create a professional listing.
               </p>
             </div>

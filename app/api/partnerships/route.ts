@@ -249,7 +249,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get partnership opportunities
-    let availablePartnerships = PARTNERSHIP_CONFIG
+    let availablePartnerships: any = PARTNERSHIP_CONFIG
     if (type) {
       availablePartnerships = {
         [type]: PARTNERSHIP_CONFIG[type as keyof typeof PARTNERSHIP_CONFIG]
@@ -366,7 +366,7 @@ export async function PUT(request: NextRequest) {
 
     if (notes) {
       updateData.metadata = {
-        ...revenue.metadata,
+        ...(typeof revenue.metadata === 'object' && revenue.metadata !== null ? revenue.metadata : {}),
         adminNotes: notes
       }
     }

@@ -130,7 +130,7 @@ export default function FavoritesPage() {
             My Favorites
           </h1>
           <p className="text-lg text-gray-600">
-            Cars you've saved for later consideration
+            Cars you&apos;ve saved for later consideration
           </p>
         </div>
       </div>

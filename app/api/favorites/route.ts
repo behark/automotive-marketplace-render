@@ -51,7 +51,7 @@ export async function GET(request: NextRequest) {
       listing: {
         ...favorite.listing,
         price: favorite.listing.price / 100,
-        images: favorite.listing.images ? favorite.listing.images.split(',') : []
+        images: favorite.listing.images && typeof favorite.listing.images === 'string' ? favorite.listing.images.split(',') : []
       }
     }))
 

@@ -95,7 +95,7 @@ export class LeadNurturingService {
       const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
 
       // Get user interactions
-      const interactions = await this.prisma.userEngagement.findMany({
+      const interactions = await this.prisma.userInteraction.findMany({
         where: {
           userId: user.id,
           createdAt: { gte: thirtyDaysAgo }
@@ -107,11 +107,11 @@ export class LeadNurturingService {
 
       // Add view interactions
       interactions
-        .filter(i => i.engagementType === 'listing_view')
+        .filter(i => i.type === 'view')
         .forEach(i => {
           interactionHistory.push({
             type: 'view',
-            listingId: i.metadata?.listingId,
+            listingId: i.listingId,
             timestamp: i.createdAt,
             value: 1
           })
@@ -316,14 +316,14 @@ export class LeadNurturingService {
         include: { automationPreferences: true }
       })
 
-      if (!user || !user.automationPreferences?.emailNotifications) return
+      if (!user || !user.automationPreferences?.emailEnabled) return
 
       // Check if hot lead email sent recently
       const recentHotLead = await this.prisma.notificationLog.findFirst({
         where: {
           userId: lead.userId,
           type: 'lead_nurturing',
-          subtype: 'hot_lead_campaign',
+          category: 'hot_lead_campaign',
           createdAt: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) }
         }
       })
@@ -350,7 +350,7 @@ export class LeadNurturingService {
         await this.logNotification(lead.userId, 'lead_nurturing', 'email', 'hot_lead_campaign')
 
         // Send SMS for very high probability leads
-        if (lead.conversionProbability > 0.8 && user.phone && user.automationPreferences.smsNotifications) {
+        if (lead.conversionProbability > 0.8 && user.phone && user.automationPreferences.smsEnabled) {
           const smsContent = `🔥 AutoMarket: Makina të reja që ju pëlqejnë! ${recommendations.slice(0, 1).map(r => r.title).join(', ')}. Shiko: automarket.al`
 
           await smsService.sendSms({
@@ -492,14 +492,14 @@ export class LeadNurturingService {
         include: { automationPreferences: true }
       })
 
-      if (!user || !user.automationPreferences?.emailNotifications) return
+      if (!user || !user.automationPreferences?.emailEnabled) return
 
       // Check if warm lead email sent recently
       const recentWarmLead = await this.prisma.notificationLog.findFirst({
         where: {
           userId: lead.userId,
           type: 'lead_nurturing',
-          subtype: 'warm_lead_campaign',
+          category: 'warm_lead_campaign',
           createdAt: { gte: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000) }
         }
       })
@@ -603,14 +603,14 @@ export class LeadNurturingService {
         include: { automationPreferences: true }
       })
 
-      if (!user || !user.automationPreferences?.emailNotifications || !user.automationPreferences?.promotionalEmails) return
+      if (!user || !user.automationPreferences?.emailEnabled || !user.automationPreferences?.marketingEmails) return
 
       // Check if cold lead email sent recently
       const recentColdLead = await this.prisma.notificationLog.findFirst({
         where: {
           userId: lead.userId,
           type: 'lead_nurturing',
-          subtype: 'cold_lead_campaign',
+          category: 'cold_lead_campaign',
           createdAt: { gte: new Date(Date.now() - 21 * 24 * 60 * 60 * 1000) }
         }
       })
@@ -707,14 +707,14 @@ export class LeadNurturingService {
         include: { automationPreferences: true }
       })
 
-      if (!user || !user.automationPreferences?.emailNotifications || !user.automationPreferences?.promotionalEmails) return
+      if (!user || !user.automationPreferences?.emailEnabled || !user.automationPreferences?.marketingEmails) return
 
       // Check if dormant lead email sent recently
       const recentDormantLead = await this.prisma.notificationLog.findFirst({
         where: {
           userId: lead.userId,
           type: 'lead_nurturing',
-          subtype: 'dormant_lead_campaign',
+          category: 'dormant_lead_campaign',
           createdAt: { gte: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000) }
         }
       })
@@ -793,11 +793,9 @@ export class LeadNurturingService {
         data: {
           userId,
           type,
-          subtype,
-          channel,
-          recipientInfo: {},
-          status: 'sent',
-          sentAt: new Date()
+          category: subtype,
+          recipientInfo: channel,
+          status: 'sent'
         }
       })
     } catch (error) {
@@ -812,7 +810,7 @@ export class LeadNurturingService {
       const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000)
 
       const campaignStats = await this.prisma.notificationLog.groupBy({
-        by: ['subtype'],
+        by: ['category'],
         where: {
           type: 'lead_nurturing',
           createdAt: { gte: startDate }

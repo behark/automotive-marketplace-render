@@ -46,7 +46,7 @@ export class OpenAIProvider implements AIProvider {
       return response.choices[0]?.message?.content || '';
     } catch (error) {
       console.error('OpenAI API error:', error);
-      throw new Error(`OpenAI generation failed: ${error.message}`);
+      throw new Error(`OpenAI generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -70,14 +70,14 @@ export class OpenAIProvider implements AIProvider {
   async embedText(text: string): Promise<number[]> {
     try {
       const response = await this.client.embeddings.create({
-        model: 'text-embedding-ada-002',
-        input: text,
+        model: "text-embedding-3-small",
+        input: text
       });
-
-      return response.data[0].embedding;
+      
+      return response.data[0].embedding as number[];
     } catch (error) {
       console.error('OpenAI embedding error:', error);
-      throw new Error(`OpenAI embedding failed: ${error.message}`);
+      throw new Error(`Embedding failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -134,7 +134,7 @@ export class HuggingFaceProvider implements AIProvider {
       return response.generated_text;
     } catch (error) {
       console.error('HuggingFace API error:', error);
-      throw new Error(`HuggingFace generation failed: ${error.message}`);
+      throw new Error(`Albanian content generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -148,7 +148,7 @@ export class HuggingFaceProvider implements AIProvider {
       return response;
     } catch (error) {
       console.error('HuggingFace analysis error:', error);
-      throw new Error(`HuggingFace analysis failed: ${error.message}`);
+      throw new Error(`Text analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -161,18 +161,18 @@ export class HuggingFaceProvider implements AIProvider {
 
       // HuggingFace returns different formats, normalize to array
       if (Array.isArray(response) && Array.isArray(response[0])) {
-        return response[0];
+        return response[0] as number[];
       }
-      return response as number[];
+      return (Array.isArray(response) ? response : []) as number[];
     } catch (error) {
       console.error('HuggingFace embedding error:', error);
-      throw new Error(`HuggingFace embedding failed: ${error.message}`);
+      throw new Error(`Failed to generate embeddings: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 }
 
 export class LocalProvider implements AIProvider {
-  public name = 'local';
+  name = 'local';
 
   async generateText(prompt: string, options: any = {}): Promise<string> {
     // Implement local text generation (simple rule-based for now)

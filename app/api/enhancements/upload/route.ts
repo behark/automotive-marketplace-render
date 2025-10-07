@@ -405,7 +405,7 @@ export async function PUT(request: NextRequest) {
 
     if (notes) {
       updateData.metadata = {
-        ...enhancement.metadata,
+        ...(typeof enhancement.metadata === 'object' && enhancement.metadata !== null ? enhancement.metadata : {}),
         notes: notes,
         updatedBy: user.id
       }
@@ -413,7 +413,7 @@ export async function PUT(request: NextRequest) {
 
     if (status === 'completed' && completionData) {
       updateData.metadata = {
-        ...updateData.metadata || enhancement.metadata,
+        ...(updateData.metadata || (typeof enhancement.metadata === 'object' && enhancement.metadata !== null ? enhancement.metadata : {})),
         completionData: completionData,
         completedAt: new Date()
       }

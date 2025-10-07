@@ -3,6 +3,7 @@
 import { AIProviderFactory } from './base';
 import { aiConfig } from './config';
 import { prisma } from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 import sharp from 'sharp';
 
 export interface PhotoAnalysisResult {
@@ -92,7 +93,7 @@ export class PhotoEnhancementService {
       return result;
     } catch (error) {
       console.error('Photo analysis failed:', error);
-      throw new Error(`Photo analysis failed: ${error.message}`);
+      throw new Error(`Photo analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -141,7 +142,7 @@ export class PhotoEnhancementService {
       return result;
     } catch (error) {
       console.error('Photo sequence analysis failed:', error);
-      throw new Error(`Photo sequence analysis failed: ${error.message}`);
+      throw new Error(`Photo sequence analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -159,7 +160,7 @@ export class PhotoEnhancementService {
         return await fs.readFile(imagePath);
       }
     } catch (error) {
-      throw new Error(`Failed to load image: ${error.message}`);
+      throw new Error(`Failed to load image: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -725,8 +726,8 @@ export class PhotoEnhancementService {
     const listings = await prisma.listing.findMany({
       where: {
         status: 'active',
-        photoQualityScores: null, // Not yet analyzed
-        images: { not: null },
+        photoQualityScores: { equals: Prisma.JsonNull }, // Not yet analyzed
+        images: { not: { equals: null } },
       },
       take: aiConfig.processing.batchSize,
     });

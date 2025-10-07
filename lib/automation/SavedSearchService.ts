@@ -70,7 +70,7 @@ export class SavedSearchService {
   private async processIndividualSearch(savedSearch: any): Promise<void> {
     try {
       const criteria: SearchCriteria = savedSearch.searchCriteria as SearchCriteria
-      const lastRun = savedSearch.lastRunAt
+      const lastRun = savedSearch.lastRun
 
       // Find new listings since last run
       const newMatches = await this.findNewMatches(criteria, lastRun)
@@ -88,7 +88,7 @@ export class SavedSearchService {
       // Update last run time
       await this.prisma.savedSearch.update({
         where: { id: savedSearch.id },
-        data: { lastRunAt: new Date() }
+        data: { lastRun: new Date() }
       })
 
     } catch (error) {
@@ -156,7 +156,7 @@ export class SavedSearchService {
     }
 
     // Check frequency limits
-    if (savedSearch.alertFrequency === 'weekly' && this.isWeeklyFrequency(savedSearch.lastMatchAt)) {
+    if (savedSearch.alertFrequency === 'weekly' && this.isWeeklyFrequency(savedSearch.lastMatch)) {
       console.log(`📅 Skipping notifications for user ${user.id} - weekly frequency not due`)
       return
     }
@@ -209,8 +209,8 @@ export class SavedSearchService {
     await this.prisma.savedSearch.update({
       where: { id: searchId },
       data: {
-        lastMatchAt: new Date(),
-        totalMatches: { increment: matchCount }
+        resultsCount: { increment: matchCount },
+        updatedAt: new Date()
       }
     })
   }
@@ -234,10 +234,10 @@ export class SavedSearchService {
   }
 
   // Check if weekly frequency allows notification
-  private isWeeklyFrequency(lastMatchAt: Date | null): boolean {
-    if (!lastMatchAt) return false
+  private isWeeklyFrequency(lastMatch: Date | null): boolean {
+    if (!lastMatch) return false
 
-    const daysSinceLastMatch = (Date.now() - lastMatchAt.getTime()) / (1000 * 60 * 60 * 24)
+    const daysSinceLastMatch = (Date.now() - lastMatch.getTime()) / (1000 * 60 * 60 * 24)
     return daysSinceLastMatch < 7
   }
 
@@ -248,11 +248,9 @@ export class SavedSearchService {
         data: {
           userId,
           type,
-          subtype,
-          channel,
-          recipientInfo: {},
-          status: 'sent',
-          sentAt: new Date()
+          category: subtype,
+          recipientInfo: channel,
+          status: 'sent'
         }
       })
     } catch (error) {
@@ -272,10 +270,8 @@ export class SavedSearchService {
       data: {
         userId,
         name: searchData.name,
-        searchCriteria: searchData.criteria,
-        alertFrequency: searchData.alertFrequency || 'daily',
-        emailEnabled: searchData.emailEnabled ?? true,
-        smsEnabled: searchData.smsEnabled ?? false,
+        criteria: JSON.parse(JSON.stringify(searchData.criteria)),
+        frequency: searchData.alertFrequency || 'daily',
         isActive: true
       }
     })
@@ -293,10 +289,8 @@ export class SavedSearchService {
     const updateData: any = {}
 
     if (updates.name) updateData.name = updates.name
-    if (updates.criteria) updateData.searchCriteria = updates.criteria
-    if (updates.alertFrequency) updateData.alertFrequency = updates.alertFrequency
-    if (updates.emailEnabled !== undefined) updateData.emailEnabled = updates.emailEnabled
-    if (updates.smsEnabled !== undefined) updateData.smsEnabled = updates.smsEnabled
+    if (updates.criteria) updateData.criteria = updates.criteria
+    if (updates.alertFrequency) updateData.frequency = updates.alertFrequency
     if (updates.isActive !== undefined) updateData.isActive = updates.isActive
 
     return await this.prisma.savedSearch.update({
@@ -328,8 +322,7 @@ export class SavedSearchService {
       const users = await this.prisma.user.findMany({
         where: {
           automationPreferences: {
-            weeklyDigest: true,
-            emailNotifications: true
+            emailEnabled: true
           }
         },
         include: {
@@ -341,7 +334,7 @@ export class SavedSearchService {
       })
 
       for (const user of users) {
-        if (this.shouldSendWeeklyDigest(user.automationPreferences)) {
+        if (user.automationPreferences && user.automationPreferences.emailEnabled) {
           await this.sendWeeklyDigest(user)
         }
       }
@@ -354,10 +347,10 @@ export class SavedSearchService {
 
   // Check if user should receive weekly digest today
   private shouldSendWeeklyDigest(preferences: any): boolean {
-    if (!preferences || !preferences.weeklyDigest) return false
+    if (!preferences || !preferences.emailEnabled) return false
 
     const today = new Date().getDay() // 0 = Sunday, 1 = Monday, etc.
-    const preferredDay = preferences.weeklyDigestDay || 1 // Default to Monday
+    const preferredDay = 1 // Default to Monday
 
     return today === preferredDay
   }
@@ -370,7 +363,7 @@ export class SavedSearchService {
       let totalMatches = 0
 
       for (const savedSearch of user.savedSearches) {
-        const criteria: SearchCriteria = savedSearch.searchCriteria as SearchCriteria
+        const criteria: SearchCriteria = savedSearch.criteria as SearchCriteria
         const matches = await this.findNewMatches(criteria, weekAgo)
         totalMatches += matches.length
       }

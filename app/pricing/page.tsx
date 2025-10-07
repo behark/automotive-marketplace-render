@@ -267,14 +267,14 @@ export default function PricingPage() {
             <div className="text-left">
               <h4 className="font-semibold text-gray-900 mb-2">What happens if I cancel?</h4>
               <p className="text-gray-600">
-                Your plan remains active until the end of your billing period. After that, you'll be downgraded to the free plan.
+                Your plan remains active until the end of your billing period. After that, you&apos;ll be downgraded to the free plan.
               </p>
             </div>
 
             <div className="text-left">
               <h4 className="font-semibold text-gray-900 mb-2">Do you offer refunds?</h4>
               <p className="text-gray-600">
-                We offer a 14-day money-back guarantee for all paid plans if you're not satisfied with our service.
+                We offer a 14-day money-back guarantee for all paid plans if you&apos;re not satisfied with our service.
               </p>
             </div>
 

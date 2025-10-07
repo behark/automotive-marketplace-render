@@ -72,12 +72,13 @@ export async function GET(
     // Hide contact info if lead not purchased
     let sanitizedLead = { ...lead }
     if (lead.status === 'available' && lead.sellerId === user.id) {
+      const contactInfo = lead.contactInfo as any
       sanitizedLead.contactInfo = {
-        hasEmail: !!lead.contactInfo?.email,
-        hasPhone: !!lead.contactInfo?.phone,
-        hasName: !!lead.contactInfo?.name,
-        verificationLevel: lead.contactInfo?.verificationLevel,
-        trustScore: lead.contactInfo?.trustScore
+        hasEmail: !!contactInfo?.email,
+        hasPhone: !!contactInfo?.phone,
+        hasName: !!contactInfo?.name,
+        verificationLevel: contactInfo?.verificationLevel,
+        trustScore: contactInfo?.trustScore
       }
     }
 

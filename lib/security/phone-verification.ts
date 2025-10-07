@@ -47,7 +47,7 @@ export class AlbanianPhoneVerificationService {
         return { isValid: false, error: 'Vetëm numrat celularë janë të lejuar' }
       }
 
-      const nationalNumber = parsed.getNationalNumber()
+      const nationalNumber = parsed.nationalNumber
       const prefix = nationalNumber.substring(0, 3)
 
       // Detect carrier based on prefix

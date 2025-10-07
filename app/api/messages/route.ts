@@ -85,7 +85,7 @@ export async function GET(request: NextRequest) {
             listing: {
               ...message.listing,
               price: message.listing.price / 100,
-              images: message.listing.images ? message.listing.images.split(',') : []
+              images: message.listing.images && typeof message.listing.images === 'string' ? message.listing.images.split(',') : []
             },
             lastMessage: message,
             messages: [],

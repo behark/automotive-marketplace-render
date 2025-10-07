@@ -23,7 +23,7 @@ export function RegionalSelector({
   showFlags = true,
   className = ""
 }: RegionalSelectorProps) {
-  const { countries, getRegionsByCountry, getCountry, getRegion, getPopularRegions, searchRegions } = useRegional()
+  const { countries, getRegionsByCountry, getCountry, getRegion, getPopularRegions, searchRegions, autoDetectRegion } = useRegional()
   const [isOpen, setIsOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [filteredRegions, setFilteredRegions] = useState<Region[]>([])
@@ -207,7 +207,6 @@ export function RegionalSelector({
                 <button
                   onClick={async () => {
                     try {
-                      const { autoDetectRegion } = useRegional()
                       const detected = await autoDetectRegion()
                       if (detected) {
                         onCountryChange(detected.country.code)

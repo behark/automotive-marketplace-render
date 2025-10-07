@@ -68,7 +68,7 @@ export class EngagementService {
 
       for (const user of users) {
         // Get recent user interactions
-        const interactions = await this.prisma.userEngagement.findMany({
+        const interactions = await this.prisma.userInteraction.findMany({
           where: {
             userId: user.id,
             createdAt: { gte: thirtyDaysAgo }
@@ -79,8 +79,8 @@ export class EngagementService {
           ? Math.floor((Date.now() - user.lastActiveAt.getTime()) / (1000 * 60 * 60 * 24))
           : 999
 
-        const listingViews = interactions.filter(i => i.engagementType === 'listing_view').length
-        const searchesPerformed = interactions.filter(i => i.engagementType === 'search').length
+        const listingViews = interactions.filter(i => i.type === 'view').length
+        const searchesPerformed = interactions.filter(i => i.type === 'search').length
 
         // Calculate engagement score (0-100)
         const engagementScore = this.calculateEngagementScore({
@@ -171,8 +171,8 @@ export class EngagementService {
         const existingNotification = await this.prisma.notificationLog.findFirst({
           where: {
             userId: user.id,
-            type: 'engagement',
-            subtype: 'welcome_email'
+            type: 'email',
+            category: 'welcome'
           }
         })
 
@@ -255,8 +255,8 @@ export class EngagementService {
       const recentReEngagement = await this.prisma.notificationLog.findFirst({
         where: {
           userId: user.id,
-          type: 'engagement',
-          subtype: 're_engagement',
+          type: 'email',
+          category: 're_engagement',
           createdAt: { gte: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000) }
         }
       })
@@ -316,8 +316,8 @@ export class EngagementService {
       const recentWinBack = await this.prisma.notificationLog.findFirst({
         where: {
           userId: user.id,
-          type: 'engagement',
-          subtype: 'win_back',
+          type: 'email',
+          category: 'win_back',
           createdAt: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) }
         }
       })
@@ -434,9 +434,9 @@ export class EngagementService {
       const existingNotification = await this.prisma.notificationLog.findFirst({
         where: {
           userId: user.id,
-          type: 'engagement',
-          subtype: 'success_story',
-          metadata: { path: ['listingId'], equals: listing.id }
+          type: 'email',
+          category: 'success_story',
+          // Note: metadata filtering would need custom implementation
         }
       })
 
@@ -507,17 +507,16 @@ export class EngagementService {
   }
 
   // Log notification delivery
-  private async logNotification(userId: string, type: string, channel: string, subtype: string): Promise<void> {
+  private async logNotification(userId: string, type: string, channel: string, category: string): Promise<void> {
     try {
       await this.prisma.notificationLog.create({
         data: {
           userId,
           type,
-          subtype,
-          channel,
-          recipientInfo: {},
+          category,
+          recipientInfo: channel,
           status: 'sent',
-          sentAt: new Date()
+          createdAt: new Date()
         }
       })
     } catch (error) {
@@ -528,12 +527,14 @@ export class EngagementService {
   // Track user engagement event
   async trackEngagement(userId: string, engagementType: string, metadata?: any): Promise<void> {
     try {
-      await this.prisma.userEngagement.create({
+      // Store engagement data as notification log
+      await this.prisma.userInteraction.create({
         data: {
           userId,
-          engagementType,
-          metadata,
-          createdAt: new Date()
+          type: engagementType,
+          listingId: metadata?.listingId || '',
+          metadata: metadata || {},
+          duration: 0
         }
       })
     } catch (error) {
@@ -547,8 +548,8 @@ export class EngagementService {
       const days = timeframe === 'week' ? 7 : timeframe === 'month' ? 30 : 365
       const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000)
 
-      const analytics = await this.prisma.userEngagement.groupBy({
-        by: ['engagementType'],
+      const analytics = await this.prisma.userInteraction.groupBy({
+        by: ['type'],
         where: {
           createdAt: { gte: startDate }
         },
@@ -556,10 +557,10 @@ export class EngagementService {
       })
 
       const campaignStats = await this.prisma.notificationLog.groupBy({
-        by: ['type', 'subtype'],
+        by: ['type', 'category'],
         where: {
           createdAt: { gte: startDate },
-          type: 'engagement'
+          type: 'email'
         },
         _count: true
       })

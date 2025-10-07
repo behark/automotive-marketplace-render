@@ -267,7 +267,7 @@ async function getRegionalRevenue(startDate: Date) {
   const regionalBreakdown = Object.entries(revenueByRegion).map(([region, data]) => ({
     region,
     ...data
-  })).sort((a, b) => b.commissionRevenue - a.commissionRevenue)
+  })).sort((a, b) => (b.commissionRevenue || 0) - (a.commissionRevenue || 0))
 
   // Cross-border opportunities
   const crossBorderOpportunities = [
@@ -300,7 +300,7 @@ async function getRegionalRevenue(startDate: Date) {
   return {
     albanianRegions: regionalBreakdown,
     crossBorderOpportunities,
-    totalRegionalRevenue: regionalBreakdown.reduce((sum, r) => sum + r.commissionRevenue, 0),
+    totalRegionalRevenue: regionalBreakdown.reduce((sum, r) => sum + (r.commissionRevenue || 0), 0),
     topPerformingRegion: regionalBreakdown[0],
     expansionPotential: {
       domestic: '€85,000 annual potential in underserved regions',

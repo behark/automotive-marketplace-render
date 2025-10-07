@@ -87,7 +87,8 @@ export async function GET(request: NextRequest) {
     // Calculate performance metrics
     const totalListings = listings.length
     const activeListings = listings.filter(l => l.status === 'active').length
-    const soldListings = listings.filter(l => l.status === 'sold').length
+    const soldListingsArray = listings.filter(l => l.status === 'sold')
+    const soldListings = soldListingsArray.length
     const totalViews = listings.reduce((sum, listing) => {
       // Simulate view count based on favorites and messages as proxy
       return sum + (listing.favorites.length * 3) + (listing.messages.length * 2)
@@ -218,8 +219,8 @@ export async function GET(request: NextRequest) {
     }
 
     // Revenue tracking
-    const totalRevenue = soldListings.reduce((sum, listing) => sum + (listing.soldPrice || listing.price), 0)
-    const avgSalePrice = soldListings.length > 0 ? Math.round(totalRevenue / soldListings.length) : 0
+    const totalRevenue = soldListingsArray.reduce((sum, listing) => sum + (listing.soldPrice || listing.price), 0)
+    const avgSalePrice = soldListingsArray.length > 0 ? Math.round(totalRevenue / soldListingsArray.length) : 0
 
     return NextResponse.json({
       overview: {

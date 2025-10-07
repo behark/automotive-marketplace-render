@@ -131,9 +131,11 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user, account }) {
       if (user) {
         token.id = user.id
-        token.role = user.role
-        token.trustScore = user.trustScore
-        token.verificationLevel = user.verificationLevel
+        // Cast user to any to access custom properties
+        const customUser = user as any
+        token.role = customUser.role
+        token.trustScore = customUser.trustScore
+        token.verificationLevel = customUser.verificationLevel
       }
 
       // Check if user is still valid on each token refresh
@@ -144,8 +146,8 @@ export const authOptions: NextAuthOptions = {
         })
 
         if (currentUser?.isBlocked) {
-          // Force logout by returning empty token
-          return {}
+          // Force logout by clearing user data from token
+          throw new Error('User account is blocked')
         }
 
         // Update token with latest user data
@@ -161,9 +163,11 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       if (token && session.user) {
         session.user.id = token.id as string
-        session.user.role = token.role as string
-        session.user.trustScore = token.trustScore as number
-        session.user.verificationLevel = token.verificationLevel as string
+        // Extend session user type with custom properties
+        const extendedUser = session.user as any
+        extendedUser.role = token.role as string
+        extendedUser.trustScore = token.trustScore as number
+        extendedUser.verificationLevel = token.verificationLevel as string
       }
       return session
     },
@@ -171,7 +175,7 @@ export const authOptions: NextAuthOptions = {
       // Additional sign-in validation
       if (account?.provider === 'google') {
         // For Google OAuth, ensure email is verified
-        if (!profile?.email_verified) {
+        if (!(profile as any)?.email_verified) {
           return false
         }
 
@@ -234,11 +238,13 @@ async function logSecurityEvent(
         location: location ? `${location.city}, ${location.country}` : null,
         riskLevel,
         riskFactors,
-        metadata: {
-          browser: ua.getBrowser(),
-          os: ua.getOS(),
-          device: ua.getDevice()
-        }
+        metadata: JSON.parse(JSON.stringify({
+          deviceInfo: {
+            browser: ua.getBrowser(),
+            os: ua.getOS(),
+            device: ua.getDevice()
+          }
+        })),
       }
     })
   } catch (error) {

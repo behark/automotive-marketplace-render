@@ -395,7 +395,7 @@ async function getPriceTrends(startDate: Date, regionFilter: any) {
     }
   }).filter(Boolean)
 
-  return trends.sort((a, b) => b.totalListings - a.totalListings)
+  return trends.sort((a, b) => (b?.totalListings || 0) - (a?.totalListings || 0))
 }
 
 async function getCrossBorderOpportunities(startDate: Date) {

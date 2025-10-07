@@ -271,17 +271,20 @@ export async function GET(request: NextRequest) {
     })
 
     // For available leads, hide sensitive contact info
-    const sanitizedLeads = leads.map(lead => ({
-      ...lead,
-      contactInfo: lead.status === 'available' ? {
-        // Only show basic info for unpurchased leads
-        hasEmail: !!lead.contactInfo?.email,
-        hasPhone: !!lead.contactInfo?.phone,
-        hasName: !!lead.contactInfo?.name,
-        verificationLevel: lead.contactInfo?.verificationLevel,
-        trustScore: lead.contactInfo?.trustScore
-      } : lead.contactInfo
-    }))
+    const sanitizedLeads = leads.map(lead => {
+      const contactInfo = lead.contactInfo as any
+      return {
+        ...lead,
+        contactInfo: lead.status === 'available' ? {
+          // Only show basic info for unpurchased leads
+          hasEmail: !!contactInfo?.email,
+          hasPhone: !!contactInfo?.phone,
+          hasName: !!contactInfo?.name,
+          verificationLevel: contactInfo?.verificationLevel,
+          trustScore: contactInfo?.trustScore
+        } : lead.contactInfo
+      }
+    })
 
     return NextResponse.json({
       leads: sanitizedLeads,

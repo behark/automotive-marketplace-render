@@ -72,7 +72,7 @@ export class ContentGenerationService {
       return generatedContent;
     } catch (error) {
       console.error('Content generation failed:', error);
-      throw new Error(`Content generation failed: ${error.message}`);
+      throw new Error(`Content generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -115,22 +115,21 @@ export class ContentGenerationService {
   private buildListingDescriptionPrompt(listing: any, tone: string, length: string, language: string): string {
     const isAlbanian = language === 'sq';
 
-    const toneDescriptions = {
-      professional: isAlbanian ? 'profesional dhe i besueshem' : 'professional and trustworthy',
-      casual: isAlbanian ? 'miqësor dhe i përshtatshëm' : 'friendly and approachable',
-      urgent: isAlbanian ? 'urgjent por jo i dyshimtë' : 'urgent but not suspicious',
-      luxury: isAlbanian ? 'luksoze dhe ekskluzive' : 'luxurious and exclusive',
+    const toneDescriptions: Record<string, string> = {
+      professional: 'profesional',
+      casual: 'miqësor',
+      urgent: 'urgjent',
+      luxury: 'luksoz'
     };
 
-    const lengthGuides = {
-      short: isAlbanian ? '50-100 fjalë' : '50-100 words',
-      medium: isAlbanian ? '100-200 fjalë' : '100-200 words',
-      long: isAlbanian ? '200-300 fjalë' : '200-300 words',
+    const lengthGuides: Record<string, string> = {
+      short: 'maksimumi 100 fjalë',
+      medium: 'rreth 200 fjalë',
+      long: 'rreth 400 fjalë'
     };
 
     if (isAlbanian) {
       return `Krijoni një përshkrim ${toneDescriptions[tone]} në shqip për këtë automjet në tregun shqiptar. Përshkrimi duhet të jetë ${lengthGuides[length]}.
-
 DETAJET E AUTOMJETIT:
 - Marka: ${listing.make}
 - Modeli: ${listing.model}
@@ -456,7 +455,7 @@ Return 3 versions:`;
   }
 
   private getMaxTokensForLength(length: string): number {
-    const tokenLimits = {
+    const tokenLimits: Record<string, number> = {
       short: 150,
       medium: 300,
       long: 500,
@@ -466,7 +465,7 @@ Return 3 versions:`;
 
   private parseContentResponse(response: string): { content: string; alternatives?: string[] } {
     // Parse AI response to extract main content and alternatives
-    const versionPattern = /VERSIONI?\s*\d+:?\s*\n?(.*?)(?=VERSIONI?\s*\d+|$)/gis;
+    const versionPattern = /VERSIONI?\s*\d+:?\s*\n?(.*?)(?=VERSIONI?\s*\d+|$)/gi;
     const matches = Array.from(response.matchAll(versionPattern));
 
     if (matches.length > 0) {

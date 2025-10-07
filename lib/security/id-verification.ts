@@ -102,7 +102,7 @@ export class AlbanianIdVerificationService {
       case 'id_card':
         return this.validateAlbanianIdCard(idNumber)
       case 'passport':
-        return this.validateAlbanianPassport(passportNumber)
+        return this.validateAlbanianPassport(idNumber)
       case 'driving_license':
         return this.validateAlbanianDrivingLicense(idNumber)
       default:

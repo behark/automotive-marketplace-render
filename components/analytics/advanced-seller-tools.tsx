@@ -794,7 +794,7 @@ export default function AdvancedSellerTools() {
                             cx="50%"
                             cy="50%"
                             labelLine={false}
-                            label={({ city, _count }) => `${city} (${_count.id})`}
+                            label={({ city, _count }: any) => `${city} (${_count.id})`}
                             outerRadius={80}
                             fill="#8884d8"
                             dataKey="_count.id"

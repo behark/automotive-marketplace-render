@@ -37,7 +37,22 @@ export class SafetyFeaturesService {
       ]
     })
 
-    return { locations }
+    // Transform the data to match the expected interface
+    const transformedLocations = locations.map(location => ({
+      id: location.id,
+      name: location.name,
+      address: location.address || '',
+      locationType: location.locationType,
+      description: location.description || undefined,
+      operatingHours: location.operatingHours || undefined,
+      hasParking: location.hasParking,
+      hasSecurity: location.hasSecurity,
+      hasCCTV: location.hasCCTV,
+      averageRating: location.averageRating || undefined,
+      isVerified: location.isVerified
+    }))
+
+    return { locations: transformedLocations }
   }
 
   /**
@@ -153,17 +168,19 @@ export class SafetyFeaturesService {
     ]
 
     for (const location of safeLocations) {
-      await prisma.safetyLocation.upsert({
+      // Check if location already exists
+      const existingLocation = await prisma.safetyLocation.findFirst({
         where: {
-          // Use a combination of name and city as unique identifier
-          name_city: {
-            name: location.name,
-            city: location.city
-          }
-        },
-        create: location,
-        update: location
+          name: location.name,
+          city: location.city
+        }
       })
+
+      if (!existingLocation) {
+        await prisma.safetyLocation.create({
+          data: location
+        })
+      }
     }
   }
 

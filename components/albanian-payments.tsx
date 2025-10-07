@@ -83,14 +83,14 @@ export function AlbanianPaymentOptions({
         return [
           `📅 PLANI I PAGESËS NË KËSTE`,
           ``,
-          `💰 Shuma totale: ${formatPrice(amount, currency)}`,
+          `💰 Shuma totale: ${formatPrice(amount, currency as any)}`,
           `📊 Numri i kësteve: ${installmentMonths} muaj`,
-          `💳 Kësti mujor: ${formatPrice(plan.monthlyPayment, currency)}`,
-          `💵 Totali me interes: ${formatPrice(plan.totalWithInterest, currency)}`,
+          `💳 Kësti mujor: ${formatPrice(plan.monthlyPayment, currency as any)}`,
+          `💵 Totali me interes: ${formatPrice(plan.totalWithInterest, currency as any)}`,
           ``,
           `📋 GRAFIKU I PAGESAVE:`,
           ...plan.schedule.slice(0, 3).map(payment =>
-            `Muaji ${payment.month}: ${formatPrice(payment.amount, currency)}`
+            `Muaji ${payment.month}: ${formatPrice(payment.amount, currency as any)}`
           ),
           plan.schedule.length > 3 ? '...' : '',
           ``,
@@ -123,7 +123,7 @@ export function AlbanianPaymentOptions({
         </div>
         <div>
           <h3 className="text-lg font-semibold text-gray-900">Mundësi Pagese</h3>
-          <p className="text-sm text-gray-500">Zgjedh mënyrën e pagesës për {formatPrice(amount, currency)}</p>
+          <p className="text-sm text-gray-500">Zgjedh mënyrën e pagesës për {formatPrice(amount, currency as any)}</p>
         </div>
       </div>
 
@@ -346,7 +346,7 @@ export function PaymentVerification({
           <Info className="w-4 h-4 text-blue-600 mt-0.5" />
           <div className="text-sm text-blue-800">
             <p>Për të përfunduar pagesën me <strong>{paymentMethod.nameAlbanian}</strong>, na dërgo kodin e verifikimit.</p>
-            <p className="mt-1">Shuma: <strong>{formatPrice(amount, currency)}</strong></p>
+            <p className="mt-1">Shuma: <strong>{formatPrice(amount, currency as any)}</strong></p>
           </div>
         </div>
       </div>

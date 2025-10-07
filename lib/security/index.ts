@@ -14,6 +14,19 @@
  * - Safety features and meeting location recommendations
  */
 
+// Import all services
+import { AlbanianPhoneVerificationService } from './phone-verification'
+import { AlbanianIdVerificationService } from './id-verification'
+import { MFAService } from './mfa-service'
+import { AlbanianBankVerificationService } from './bank-verification'
+import { AlbanianReviewSystem } from './review-system'
+import { EscrowService } from './escrow-service'
+import { PrivacyProtectionService } from './privacy-protection'
+import { FraudPreventionService } from './fraud-prevention'
+import { ContentModerationService } from './content-moderation'
+import { LegalComplianceService } from './legal-compliance'
+import { SafetyFeaturesService } from './safety-features'
+
 // Core Services
 export { AlbanianPhoneVerificationService } from './phone-verification'
 export { AlbanianIdVerificationService } from './id-verification'

@@ -1,4 +1,24 @@
-import { type CarListing } from './whatsapp'
+// Define CarListing type locally
+interface CarListing {
+  id: string;
+  title: string;
+  make: string;
+  model: string;
+  year: number;
+  price: number;
+  currency?: string;
+  mileage?: number;
+  fuelType?: string;
+  transmission?: string;
+  color?: string;
+  images: string[];
+  city: string;
+  country?: string;
+  description: string;
+  sellerPhone?: string;
+}
+
+export type { CarListing }
 
 export interface SocialShareData {
   url: string
@@ -148,7 +168,7 @@ class SocialSharingService {
       }).format(price)
     }
 
-    const title = `${listing.make} ${listing.model} ${listing.year} - ${formatPrice(listing.price, listing.currency)}`
+    const title = `${listing.make} ${listing.model} ${listing.year} - ${formatPrice(listing.price, listing.currency || 'EUR')}`
 
     const features = []
     if (listing.mileage) features.push(`${new Intl.NumberFormat('sq-AL').format(listing.mileage)} km`)
@@ -157,8 +177,8 @@ class SocialSharingService {
 
     const description = [
       `🚗 ${listing.make} ${listing.model} (${listing.year})`,
-      `💰 Çmimi: ${formatPrice(listing.price, listing.currency)}`,
-      `📍 ${listing.city}, ${this.getCountryName(listing.country)}`,
+      `💰 Çmimi: ${formatPrice(listing.price, listing.currency || 'EUR')}`,
+      `📍 ${listing.city}, ${this.getCountryName(listing.country || 'AL')}`,
       features.length > 0 ? `⚙️ ${features.join(' • ')}` : '',
       '',
       'Shiko detajet e plota dhe foto të tjera:',
@@ -254,10 +274,10 @@ class SocialSharingService {
         '✅ E verifikuar nga AutoMarket Albania'
       ].join('\n'),
       price: listing.price,
-      currency: listing.currency,
+      currency: listing.currency || 'EUR',
       category: 'Vehicles',
       condition: 'Used', // This would be configurable
-      location: `${listing.city}, ${this.getCountryName(listing.country)}`
+      location: `${listing.city}, ${this.getCountryName(listing.country || 'AL')}`
     }
   }
 
@@ -270,7 +290,7 @@ class SocialSharingService {
     mentions?: string[]
     stickers?: any[]
   } {
-    const price = this.formatPrice(listing.price, listing.currency)
+    const price = this.formatPrice(listing.price, listing.currency || 'EUR')
 
     return {
       text: [
@@ -295,7 +315,7 @@ class SocialSharingService {
       stickers: [
         {
           type: 'location',
-          location: `${listing.city}, ${this.getCountryName(listing.country)}`
+          location: `${listing.city}, ${this.getCountryName(listing.country || 'AL')}`
         },
         {
           type: 'hashtag',

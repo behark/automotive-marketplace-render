@@ -96,13 +96,12 @@ export class DemandForecastingService {
         }
       }
 
-      // Save forecasts to database
       await this.saveForecasts(forecasts);
 
       return forecasts;
     } catch (error) {
       console.error('Demand forecasting failed:', error);
-      throw new Error(`Demand forecasting failed: ${error.message}`);
+      throw new Error(`Forecast update failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -250,14 +249,13 @@ export class DemandForecastingService {
   private calculateSeasonalFactors(forecastPeriod: string) {
     const month = parseInt(forecastPeriod.split('-')[1]);
     const season = this.getSeasonFromMonth(month);
-
     const seasonalMultipliers = aiConfig.albanianMarket.seasonalFactors;
     const baseMultiplier = seasonalMultipliers[season] || 1.0;
 
     // Additional Albanian-specific seasonal factors
-    const albanianFactors = {
-      1: 0.7,  // January - low demand after holidays
-      2: 0.8,  // February - winter continues
+    const albanianFactors: Record<number, number> = {
+      1: 0.7,  // January - lowest demand (winter)
+      2: 0.8,  // February - still winter
       3: 1.1,  // March - spring buying starts
       4: 1.2,  // April - peak spring demand
       5: 1.3,  // May - best weather, highest demand
@@ -408,7 +406,7 @@ Ktheni parashikimin në JSON:
     }
 
     const recentSales = historicalData.historicalSales.slice(0, 3);
-    const avgRecentSales = recentSales.reduce((a, b) => a + b, 0) / recentSales.length;
+    const avgRecentSales = recentSales.reduce((a: number, b: number) => a + b, 0) / recentSales.length;
 
     // Normalize to 0-100 scale (assuming max 50 sales per month for a specific model)
     const normalizedSales = Math.min(100, (avgRecentSales / 50) * 100);
