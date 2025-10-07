@@ -97,6 +97,7 @@
     "tailwindcss-animate": "^1.0.7",
     "twilio": "^4.19.3",
     "typescript": "^5.3.3",
+    "@types/ua-parser-js": "^0.7.39",
     "ua-parser-js": "^1.0.37",
     "uuid": "^9.0.1",
     "zod": "^3.22.4",
@@ -109,7 +110,6 @@
     "@types/nodemailer": "^6.4.14",
     "@types/qrcode": "^1.5.5",
     "@types/speakeasy": "^2.0.10",
-    "@types/ua-parser-js": "^0.7.39",
     "@types/uuid": "^9.0.7"
   },
   "engines": {
