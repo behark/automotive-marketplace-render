@@ -1,5 +1,4 @@
 import { PrismaClient } from '@prisma/client'
-import { Express } from 'express'
 import crypto from 'crypto'
 
 const prisma = new PrismaClient()
@@ -238,7 +237,7 @@ export class AlbanianBankVerificationService {
    */
   static async verifyBankDocument(
     userId: string,
-    bankStatement: Express.Multer.File
+    bankStatement: { originalname: string; buffer: Buffer }
   ): Promise<{ success: boolean; error?: string }> {
     try {
       // In production, process bank statement with OCR
@@ -270,7 +269,7 @@ export class AlbanianBankVerificationService {
    */
   private static async storeBankDocumentSecurely(
     userId: string,
-    file: Express.Multer.File
+    file: { originalname: string; buffer: Buffer }
   ): Promise<string> {
     // In production, upload to secure cloud storage with encryption
     const fileName = `bank-docs/${userId}/${Date.now()}-${file.originalname}`
