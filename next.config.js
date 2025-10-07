@@ -7,6 +7,10 @@ const nextConfig = {
         protocol: 'https',
         hostname: '**.onrender.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'automotive-marketplace.onrender.com',
+      },
     ],
     // Image optimization settings
     formats: ['image/webp', 'image/avif'],

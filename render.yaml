@@ -4,7 +4,7 @@ services:
     name: automotive-marketplace
     runtime: node
     plan: free  # Start with free tier
-    buildCommand: npm ci && npm run build
+    buildCommand: npm ci && npx prisma generate && npx prisma migrate deploy && npm run build
     startCommand: npm start
     envVars:
       - key: NODE_ENV
@@ -34,14 +34,17 @@ services:
           name: automotive-marketplace
           type: web
           property: url
+      # CRITICAL: Add this secret in Render Dashboard
+      # Generate with: openssl rand -base64 32
+      - key: NEXTAUTH_SECRET
+        sync: false
     # Auto-deploy from main branch
     autoDeploy: true
 
   # PostgreSQL Database
-  - type: pserv
+  - type: postgres
     name: automotive-db
-    runtime: postgresql
-    plan: free  # 30-day free, then $6/month starter
+    plan: free
     databaseName: automotive
     databaseUser: automotive_user
 
