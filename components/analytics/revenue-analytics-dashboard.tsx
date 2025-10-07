@@ -9,9 +9,10 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { Euro, TrendingUp, TrendingDown, DollarSign, FileText, Calendar, AlertTriangle, CheckCircle, Calculator, Globe, Target } from 'lucide-react'
 
 export default function RevenueAnalyticsDashboard() {
-  const [data, setData] = useState<any>(null)
   const [timeFrame, setTimeFrame] = useState('30d')
   const [activeTab, setActiveTab] = useState('overview')
+  const [loading, setLoading] = useState(false)
+  const [data, setData] = useState<any>({})
 
   const fetchRevenueData = useCallback(async () => {
     try {
@@ -31,13 +32,6 @@ export default function RevenueAnalyticsDashboard() {
   useEffect(() => {
     fetchRevenueData()
   }, [fetchRevenueData, timeFrame])
-  if (!data) {
-    return (
-      <div className="text-center py-12">
-        <p className="text-gray-500">Nuk mund të ngarkohen të dhënat e të ardhurave.</p>
-      </div>
-    )
-  }
 
   const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6']
 
@@ -74,7 +68,7 @@ export default function RevenueAnalyticsDashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Të Ardhurat Totale</p>
-                <p className="text-2xl font-bold text-gray-900">€{data.revenueOverview.totalRevenue.toLocaleString()}</p>
+                <p className="text-2xl font-bold text-gray-900">€{data.revenueOverview?.totalRevenue?.toLocaleString() || '0'}</p>
                 <p className="text-sm text-gray-500 mt-1">Bruto</p>
               </div>
               <div className="p-3 rounded-lg bg-blue-50">
@@ -89,7 +83,7 @@ export default function RevenueAnalyticsDashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Të Ardhurat Neto</p>
-                <p className="text-2xl font-bold text-green-600">€{data.revenueOverview.netRevenue.toLocaleString()}</p>
+                <p className="text-2xl font-bold text-green-600">€{data.revenueOverview?.netRevenue?.toLocaleString() || '0'}</p>
                 <p className="text-sm text-gray-500 mt-1">Pas kostove</p>
               </div>
               <div className="p-3 rounded-lg bg-green-50">
@@ -104,7 +98,7 @@ export default function RevenueAnalyticsDashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Marzhi i Fitimit</p>
-                <p className="text-2xl font-bold text-purple-600">{data.revenueOverview.profitMargin}%</p>
+                <p className="text-2xl font-bold text-purple-600">{data.revenueOverview?.profitMargin || '0'}%</p>
                 <p className="text-sm text-gray-500 mt-1">Efiçencë</p>
               </div>
               <div className="p-3 rounded-lg bg-purple-50">
@@ -119,7 +113,7 @@ export default function RevenueAnalyticsDashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Transaksione</p>
-                <p className="text-2xl font-bold text-orange-600">{data.revenueOverview.transactionCount}</p>
+                <p className="text-2xl font-bold text-orange-600">{data.revenueOverview?.transactionCount || '0'}</p>
                 <p className="text-sm text-gray-500 mt-1">Totale</p>
               </div>
               <div className="p-3 rounded-lg bg-orange-50">
@@ -149,7 +143,7 @@ export default function RevenueAnalyticsDashboard() {
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
-                  <AreaChart data={data.revenueOverview.monthlyData}>
+                  <AreaChart data={data.revenueOverview?.monthlyData || []}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="month" />
                     <YAxis />
@@ -171,10 +165,10 @@ export default function RevenueAnalyticsDashboard() {
                   <PieChart>
                     <Pie
                       data={[
-                        { name: 'Komisione', value: data.revenueOverview.revenueBreakdown.commissions },
-                        { name: 'Abonime', value: data.revenueOverview.revenueBreakdown.subscriptions },
-                        { name: 'Përmirësime', value: data.revenueOverview.revenueBreakdown.enhancements },
-                        { name: 'Lead-at', value: data.revenueOverview.revenueBreakdown.leads }
+                        { name: 'Komisione', value: data.revenueOverview?.revenueBreakdown?.commissions || 0 },
+                        { name: 'Abonime', value: data.revenueOverview?.revenueBreakdown?.subscriptions || 0 },
+                        { name: 'Përmirësime', value: data.revenueOverview?.revenueBreakdown?.enhancements || 0 },
+                        { name: 'Lead-at', value: data.revenueOverview?.revenueBreakdown?.leads || 0 }
                       ]}
                       cx="50%"
                       cy="50%"
@@ -204,17 +198,17 @@ export default function RevenueAnalyticsDashboard() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="text-center p-4 bg-red-50 rounded-lg">
                   <h4 className="font-medium text-gray-900">Tarifa Stripe</h4>
-                  <p className="text-2xl font-bold text-red-600">€{data.revenueOverview.costs.stripeFees.toLocaleString()}</p>
+                  <p className="text-2xl font-bold text-red-600">€{data.revenueOverview?.costs?.stripeFees?.toLocaleString() || '0'}</p>
                   <p className="text-sm text-gray-600">2.9% e transaksioneve</p>
                 </div>
                 <div className="text-center p-4 bg-yellow-50 rounded-lg">
                   <h4 className="font-medium text-gray-900">Kosto Operacionale</h4>
-                  <p className="text-2xl font-bold text-yellow-600">€{data.revenueOverview.costs.operational.toLocaleString()}</p>
+                  <p className="text-2xl font-bold text-yellow-600">€{data.revenueOverview?.costs?.operational?.toLocaleString() || '0'}</p>
                   <p className="text-sm text-gray-600">15% e të ardhurave</p>
                 </div>
                 <div className="text-center p-4 bg-gray-50 rounded-lg">
                   <h4 className="font-medium text-gray-900">Kosto Totale</h4>
-                  <p className="text-2xl font-bold text-gray-600">€{data.revenueOverview.costs.total.toLocaleString()}</p>
+                  <p className="text-2xl font-bold text-gray-600">€{data.revenueOverview?.costs?.total?.toLocaleString() || '0'}</p>
                   <p className="text-sm text-gray-600">Të gjitha kostot</p>
                 </div>
               </div>
@@ -230,7 +224,7 @@ export default function RevenueAnalyticsDashboard() {
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={400}>
-                <BarChart data={data.revenueOverview.monthlyData}>
+                <BarChart data={data.revenueOverview?.monthlyData || []}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" />
                   <YAxis />
@@ -245,7 +239,7 @@ export default function RevenueAnalyticsDashboard() {
           </Card>
 
           {/* Partnership Revenue */}
-          {data.partnershipRevenue && (
+          {data.partnershipRevenue?.partnerships && (
             <Card>
               <CardHeader>
                 <CardTitle>Të Ardhurat nga Partneritetet</CardTitle>
@@ -282,17 +276,17 @@ export default function RevenueAnalyticsDashboard() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                 <div className="text-center p-4 bg-blue-50 rounded-lg">
                   <h4 className="font-medium text-gray-900">TVSH (20%)</h4>
-                  <p className="text-2xl font-bold text-blue-600">€{data.albanianTaxAnalysis.taxCalculations.vatOwed.toLocaleString()}</p>
+                  <p className="text-2xl font-bold text-blue-600">€{data.albanianTaxAnalysis?.taxCalculations?.vatOwed?.toLocaleString() || '0'}</p>
                   <p className="text-sm text-gray-600">Tatim mbi vlerën e shtuar</p>
                 </div>
                 <div className="text-center p-4 bg-green-50 rounded-lg">
                   <h4 className="font-medium text-gray-900">Tatim Fitimi (15%)</h4>
-                  <p className="text-2xl font-bold text-green-600">€{data.albanianTaxAnalysis.taxCalculations.profitTax.toLocaleString()}</p>
+                  <p className="text-2xl font-bold text-green-600">€{data.albanianTaxAnalysis?.taxCalculations?.profitTax?.toLocaleString() || '0'}</p>
                   <p className="text-sm text-gray-600">Tatim mbi fitimin</p>
                 </div>
                 <div className="text-center p-4 bg-red-50 rounded-lg">
                   <h4 className="font-medium text-gray-900">Totali</h4>
-                  <p className="text-2xl font-bold text-red-600">€{data.albanianTaxAnalysis.taxCalculations.totalTaxBurden.toLocaleString()}</p>
+                  <p className="text-2xl font-bold text-red-600">€{data.albanianTaxAnalysis?.taxCalculations?.totalTaxBurden?.toLocaleString() || '0'}</p>
                   <p className="text-sm text-gray-600">Barrë totale tatimore</p>
                 </div>
               </div>
@@ -302,7 +296,7 @@ export default function RevenueAnalyticsDashboard() {
                   <AlertTriangle className="h-5 w-5 text-yellow-600 mr-2" />
                   <h5 className="font-medium text-yellow-900">Norma Efektive Tatimore</h5>
                 </div>
-                <p className="text-lg font-bold text-yellow-800">{data.albanianTaxAnalysis.effectiveTaxRate}%</p>
+                <p className="text-lg font-bold text-yellow-800">{data.albanianTaxAnalysis?.effectiveTaxRate || '0'}%</p>
                 <p className="text-sm text-yellow-700">E llogarilur mbi të ardhurat totale</p>
               </div>
             </CardContent>
@@ -315,7 +309,7 @@ export default function RevenueAnalyticsDashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {data.albanianTaxAnalysis.taxOptimizationTips.map((tip: any, index: number) => (
+                {(data.albanianTaxAnalysis?.taxOptimizationTips || []).map((tip: any, index: number) => (
                   <div key={index} className="p-4 border rounded-lg">
                     <div className="flex items-start space-x-3">
                       <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
@@ -342,12 +336,12 @@ export default function RevenueAnalyticsDashboard() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="p-4 bg-blue-50 rounded-lg">
                   <h5 className="font-medium text-blue-900">TVSH Tremujore</h5>
-                  <p className="text-xl font-bold text-blue-700">€{data.albanianTaxAnalysis.quarterlyObligations.vat.toLocaleString()}</p>
+                  <p className="text-xl font-bold text-blue-700">€{data.albanianTaxAnalysis?.quarterlyObligations?.vat?.toLocaleString() || '0'}</p>
                   <p className="text-sm text-blue-600">Pagesa çdo tremujor</p>
                 </div>
                 <div className="p-4 bg-green-50 rounded-lg">
                   <h5 className="font-medium text-green-900">Tatim Fitimi Tremujor</h5>
-                  <p className="text-xl font-bold text-green-700">€{data.albanianTaxAnalysis.quarterlyObligations.profitTax.toLocaleString()}</p>
+                  <p className="text-xl font-bold text-green-700">€{data.albanianTaxAnalysis?.quarterlyObligations?.profitTax?.toLocaleString() || '0'}</p>
                   <p className="text-sm text-green-600">Pagesa çdo tremujor</p>
                 </div>
               </div>
@@ -366,7 +360,7 @@ export default function RevenueAnalyticsDashboard() {
                 </CardHeader>
                 <CardContent>
                   <ResponsiveContainer width="100%" height={400}>
-                    <LineChart data={data.revenueForecasting.forecasts}>
+                    <LineChart data={data.revenueForecasting?.forecasts || []}>
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="month" />
                       <YAxis />
@@ -386,7 +380,7 @@ export default function RevenueAnalyticsDashboard() {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {Object.entries(data.revenueForecasting.scenarios).map(([key, scenario]: [string, any]) => (
+                    {Object.entries(data.revenueForecasting?.scenarios || {}).map(([key, scenario]: [string, any]) => (
                       <div key={key} className="p-4 border rounded-lg">
                         <h5 className="font-medium text-gray-900 mb-2">{scenario.name}</h5>
                         <p className="text-2xl font-bold text-blue-600 mb-2">
@@ -410,7 +404,7 @@ export default function RevenueAnalyticsDashboard() {
                   </CardHeader>
                   <CardContent>
                     <ul className="space-y-3">
-                      {data.revenueForecasting.assumptions.map((assumption: string, index: number) => (
+                      {(data.revenueForecasting?.assumptions || []).map((assumption: string, index: number) => (
                         <li key={index} className="flex items-start space-x-3">
                           <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
                           <span className="text-sm text-gray-700">{assumption}</span>
@@ -426,7 +420,7 @@ export default function RevenueAnalyticsDashboard() {
                   </CardHeader>
                   <CardContent>
                     <ul className="space-y-3">
-                      {data.revenueForecasting.riskFactors.map((risk: string, index: number) => (
+                      {(data.revenueForecasting?.riskFactors || []).map((risk: string, index: number) => (
                         <li key={index} className="flex items-start space-x-3">
                           <AlertTriangle className="h-4 w-4 text-red-600 mt-0.5 flex-shrink-0" />
                           <span className="text-sm text-gray-700">{risk}</span>

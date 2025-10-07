@@ -156,16 +156,6 @@ export default function AdvancedSellerTools() {
   const [activeTab, setActiveTab] = useState('pricing')
   const [userListings, setUserListings] = useState([])
 
-  useEffect(() => {
-    fetchUserListings()
-  }, [fetchUserListings])
-
-  useEffect(() => {
-    if (selectedListing && activeTab) {
-      fetchToolData(activeTab)
-    }
-  }, [selectedListing, activeTab, fetchToolData])
-
   const fetchUserListings = useCallback(async () => {
     try {
       const response = await fetch('/api/listings')
@@ -197,6 +187,16 @@ export default function AdvancedSellerTools() {
       setLoading(false)
     }
   }, [selectedListing])
+
+  useEffect(() => {
+    fetchUserListings()
+  }, [fetchUserListings])
+
+  useEffect(() => {
+    if (selectedListing && activeTab) {
+      fetchToolData(activeTab)
+    }
+  }, [selectedListing, activeTab, fetchToolData])
 
   const getScoreColor = (score: number) => {
     if (score >= 80) return 'text-green-600'

@@ -252,10 +252,6 @@ export default function DealerSuccessCenter() {
   const [timeFrame, setTimeFrame] = useState('30d')
   const [activeTab, setActiveTab] = useState('overview')
 
-  useEffect(() => {
-    fetchDealerData()
-  }, [fetchDealerData, timeFrame])
-
   const fetchDealerData = useCallback(async () => {
     try {
       setLoading(true)
@@ -270,6 +266,10 @@ export default function DealerSuccessCenter() {
       setLoading(false)
     }
   }, [timeFrame])
+
+  useEffect(() => {
+    fetchDealerData()
+  }, [fetchDealerData, timeFrame])
 
   if (loading) {
     return (
