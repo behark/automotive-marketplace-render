@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Content generation API error:', error);
     return NextResponse.json(
-      { error: 'Failed to generate content', details: error.message },
+      { error: 'Failed to generate content', details: error instanceof Error ? error.message : String(error) },
       { status: 500 }
     );
   }
@@ -116,7 +116,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Get generated content API error:', error);
     return NextResponse.json(
-      { error: 'Failed to get generated content', details: error.message },
+      { error: 'Failed to get generated content', details: error instanceof Error ? error.message : String(error) },
       { status: 500 }
     );
   }
@@ -155,7 +155,7 @@ export async function PUT(request: NextRequest) {
   } catch (error) {
     console.error('Update generated content API error:', error);
     return NextResponse.json(
-      { error: 'Failed to update content', details: error.message },
+      { error: 'Failed to update content', details: error instanceof Error ? error.message : String(error) },
       { status: 500 }
     );
   }

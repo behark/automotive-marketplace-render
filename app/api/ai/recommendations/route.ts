@@ -67,7 +67,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Recommendations API error:', error);
     return NextResponse.json(
-      { error: 'Failed to get recommendations', details: error.message },
+      { error: 'Failed to get recommendations', details: error instanceof Error ? error.message : String(error) },
       { status: 500 }
     );
   }
@@ -107,7 +107,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Recommendations POST API error:', error);
     return NextResponse.json(
-      { error: 'Failed to process request', details: error.message },
+      { error: 'Failed to process request', details: error instanceof Error ? error.message : String(error) },
       { status: 500 }
     );
   }

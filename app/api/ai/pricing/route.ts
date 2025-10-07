@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Pricing analysis API error:', error);
     return NextResponse.json(
-      { error: 'Failed to analyze pricing', details: error.message },
+      { error: 'Failed to analyze pricing', details: error instanceof Error ? error.message : String(error) },
       { status: 500 }
     );
   }
@@ -100,7 +100,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Get pricing analysis API error:', error);
     return NextResponse.json(
-      { error: 'Failed to get pricing analysis', details: error.message },
+      { error: 'Failed to get pricing analysis', details: error instanceof Error ? error.message : String(error) },
       { status: 500 }
     );
   }

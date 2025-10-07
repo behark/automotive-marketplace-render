@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         error: 'Failed to process message',
-        details: error.message,
+        details: error instanceof Error ? error.message : 'Unknown error',
         fallbackResponse: {
           message: 'Më vjen keq, por kam një problem teknik. Ju lutem provoni përsëri ose kontaktoni mbështetjen.',
           intent: 'error',
@@ -106,7 +106,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Chatbot GET API error:', error);
     return NextResponse.json(
-      { error: 'Failed to get chatbot data', details: error.message },
+      { error: 'Failed to get chatbot data', details: error instanceof Error ? error.message : String(error) },
       { status: 500 }
     );
   }
@@ -182,7 +182,7 @@ export async function PUT(request: NextRequest) {
   } catch (error) {
     console.error('Chatbot PUT API error:', error);
     return NextResponse.json(
-      { error: 'Failed to update conversation', details: error.message },
+      { error: 'Failed to update conversation', details: error instanceof Error ? error.message : String(error) },
       { status: 500 }
     );
   }

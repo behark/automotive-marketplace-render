@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
       {
         success: false,
         error: 'Failed to get automation status',
-        details: error.message
+        details: error instanceof Error ? error.message : String(error)
       },
       { status: 500 }
     )
@@ -155,7 +155,7 @@ export async function POST(request: NextRequest) {
       {
         success: false,
         error: 'Failed to execute automation action',
-        details: error.message
+        details: error instanceof Error ? error.message : String(error)
       },
       { status: 500 }
     )
@@ -198,7 +198,7 @@ export async function PUT(request: NextRequest) {
       {
         success: false,
         error: 'Failed to update automation settings',
-        details: error.message
+        details: error instanceof Error ? error.message : String(error)
       },
       { status: 500 }
     )

@@ -328,7 +328,7 @@ async function processCommissionInvoicing(executeNow: boolean) {
       processed.push({
         commissionId: commission.id,
         status: 'error',
-        error: error.message
+        error: error instanceof Error ? error.message : String(error)
       })
     }
   }
@@ -419,7 +419,7 @@ async function processSubscriptionRenewals(executeNow: boolean) {
       processed.push({
         subscriptionId: subscription.id,
         status: 'error',
-        error: error.message
+        error: error instanceof Error ? error.message : String(error)
       })
     }
   }
@@ -482,7 +482,7 @@ async function processFailedPaymentRecovery(executeNow: boolean) {
       processed.push({
         paymentId: payment.id,
         status: 'error',
-        error: error.message
+        error: error instanceof Error ? error.message : String(error)
       })
     }
   }
@@ -540,7 +540,7 @@ async function processLeadCreditTopup(executeNow: boolean) {
       processed.push({
         userId: user.id,
         status: 'error',
-        error: error.message
+        error: error instanceof Error ? error.message : String(error)
       })
     }
   }
@@ -609,7 +609,7 @@ async function processLateFees(executeNow: boolean) {
       processed.push({
         commissionId: commission.id,
         status: 'error',
-        error: error.message
+        error: error instanceof Error ? error.message : String(error)
       })
     }
   }

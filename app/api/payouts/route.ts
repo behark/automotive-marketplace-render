@@ -72,7 +72,7 @@ const processCommissionPayout = async (userId: string, amount: number) => {
     console.error('Payout processing error:', error)
     return {
       success: false,
-      error: error.message
+      error: error instanceof Error ? error.message : String(error)
     }
   }
 }

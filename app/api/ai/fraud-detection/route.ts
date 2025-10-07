@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Fraud detection API error:', error);
     return NextResponse.json(
-      { error: 'Failed to process fraud detection', details: error.message },
+      { error: 'Failed to process fraud detection', details: error instanceof Error ? error.message : String(error) },
       { status: 500 }
     );
   }
@@ -159,7 +159,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Get fraud detection API error:', error);
     return NextResponse.json(
-      { error: 'Failed to get fraud detection data', details: error.message },
+      { error: 'Failed to get fraud detection data', details: error instanceof Error ? error.message : String(error) },
       { status: 500 }
     );
   }
@@ -208,7 +208,7 @@ export async function PUT(request: NextRequest) {
   } catch (error) {
     console.error('Update fraud alert API error:', error);
     return NextResponse.json(
-      { error: 'Failed to update fraud alert', details: error.message },
+      { error: 'Failed to update fraud alert', details: error instanceof Error ? error.message : String(error) },
       { status: 500 }
     );
   }
