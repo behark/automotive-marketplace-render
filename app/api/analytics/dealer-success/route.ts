@@ -3,6 +3,8 @@ import { PrismaClient } from '@prisma/client'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 
+export const dynamic = 'force-dynamic'
+
 const prisma = new PrismaClient()
 
 export async function GET(request: NextRequest) {
@@ -196,7 +198,7 @@ async function getLeadManagement(dealerId: string, startDate: Date) {
   }
 
   // Lead quality by car type
-  const leadsByCarType = {} as Record<string, { count: number; converted: number; avgQuality: number; conversionRate?: number }>
+  const leadsByCarType: Record<string, { count: number; converted: number; avgQuality: number; conversionRate?: number }> = {}
   leads.forEach(lead => {
     if (lead.listing) {
       const carType = `${lead.listing.make} ${lead.listing.model}`
