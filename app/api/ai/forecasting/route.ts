@@ -5,6 +5,7 @@ import { getServerSession } from 'next-auth';
 import { aiOrchestrator } from '@/lib/ai/orchestrator';
 import { aiConfig } from '@/lib/ai/config';
 import { DemandForecastingService } from '@/lib/ai/demand-forecasting';
+import { prisma } from '@/lib/prisma';
 
 export async function POST(request: NextRequest) {
   try {

@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { aiOrchestrator } from '@/lib/ai/orchestrator';
 import { AlbanianChatbotService } from '@/lib/ai/chatbot';
+import { prisma } from '@/lib/prisma';
 
 export async function POST(request: NextRequest) {
   try {
