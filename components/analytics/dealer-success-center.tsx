@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
 import { Button } from '../ui/button'
@@ -254,9 +254,9 @@ export default function DealerSuccessCenter() {
 
   useEffect(() => {
     fetchDealerData()
-  }, [timeFrame])
+  }, [fetchDealerData, timeFrame])
 
-  const fetchDealerData = async () => {
+  const fetchDealerData = useCallback(async () => {
     try {
       setLoading(true)
       const response = await fetch(`/api/analytics/dealer-success?timeFrame=${timeFrame}`)
@@ -269,7 +269,7 @@ export default function DealerSuccessCenter() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [timeFrame])
 
   if (loading) {
     return (

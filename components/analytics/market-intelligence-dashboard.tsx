@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
 import { Button } from '../ui/button'
@@ -101,11 +101,7 @@ export default function MarketIntelligenceDashboard() {
   const [region, setRegion] = useState('all')
   const [activeTab, setActiveTab] = useState('overview')
 
-  useEffect(() => {
-    fetchMarketData()
-  }, [timeFrame, region])
-
-  const fetchMarketData = async () => {
+  const fetchMarketData = useCallback(async () => {
     try {
       setLoading(true)
       const response = await fetch(`/api/analytics/market-intelligence?timeFrame=${timeFrame}&region=${region}`)
@@ -118,7 +114,11 @@ export default function MarketIntelligenceDashboard() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [timeFrame, region])
+
+  useEffect(() => {
+    fetchMarketData()
+  }, [fetchMarketData, timeFrame, region])
 
   if (loading) {
     return (

@@ -851,4 +851,10 @@ export class ContentModerationService {
   }
 }
 
-export default { FraudDetectionService, ContentModerationService };
+const fraudDetectionService = new FraudDetectionService();
+const contentModerationService = new ContentModerationService();
+
+export {
+  fraudDetectionService,
+  contentModerationService,
+};

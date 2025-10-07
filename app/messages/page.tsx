@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import { useSession } from 'next-auth/react'
 
 export const dynamic = 'force-dynamic'
@@ -215,9 +216,11 @@ export default function MessagesPage() {
                       {/* Car Image */}
                       <div className="w-12 h-12 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
                         {conversation.listing.images && conversation.listing.images.length > 0 ? (
-                          <img
+                          <Image
                             src={conversation.listing.images[0]}
                             alt="Car"
+                            width={48}
+                            height={48}
                             className="w-full h-full object-cover"
                           />
                         ) : (

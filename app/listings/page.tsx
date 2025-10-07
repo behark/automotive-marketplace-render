@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
+import Image from 'next/image'
 import { FavoriteButton } from '../../components/favorite-button'
 
 export const dynamic = 'force-dynamic'
@@ -32,7 +33,7 @@ export default function ListingsPage() {
     location: ''
   })
 
-  const fetchListings = async () => {
+  const fetchListings = useCallback(async () => {
     setLoading(true)
     try {
       const params = new URLSearchParams()
@@ -59,17 +60,17 @@ export default function ListingsPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [filters])
 
   useEffect(() => {
     // Load listings when component mounts
     fetchListings()
-  }, [])
+  }, [fetchListings])
 
   useEffect(() => {
     // Refetch when filters change
     fetchListings()
-  }, [filters])
+  }, [fetchListings, filters])
 
   // Handle URL search params on client-side only
   useEffect(() => {
@@ -270,19 +271,12 @@ export default function ListingsPage() {
                   {/* Image */}
                   <div className="h-48 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                     {listing.images && listing.images.length > 0 ? (
-                      <img
+                      <Image
                         src={Array.isArray(listing.images) ? listing.images[0] : listing.images}
                         alt={listing.title}
+                        width={300}
+                        height={200}
                         className="w-full h-48 object-cover"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement
-                          target.style.display = 'none'
-                          target.parentElement!.innerHTML = `
-                            <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M8 7V3a1 1 0 011-1h6a1 1 0 011 1v4m-8 0h8m-8 0l-2 8h12l-2-8"/>
-                            </svg>
-                          `
-                        }}
                       />
                     ) : (
                       <svg className="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
 import { Button } from '../ui/button'
@@ -158,15 +158,15 @@ export default function AdvancedSellerTools() {
 
   useEffect(() => {
     fetchUserListings()
-  }, [])
+  }, [fetchUserListings])
 
   useEffect(() => {
     if (selectedListing && activeTab) {
       fetchToolData(activeTab)
     }
-  }, [selectedListing, activeTab])
+  }, [selectedListing, activeTab, fetchToolData])
 
-  const fetchUserListings = async () => {
+  const fetchUserListings = useCallback(async () => {
     try {
       const response = await fetch('/api/listings')
       if (response.ok) {
@@ -179,9 +179,9 @@ export default function AdvancedSellerTools() {
     } catch (error) {
       console.error('Error fetching listings:', error)
     }
-  }
+  }, [])
 
-  const fetchToolData = async (tool: string) => {
+  const fetchToolData = useCallback(async (tool: string) => {
     if (!selectedListing) return
 
     try {
@@ -196,7 +196,7 @@ export default function AdvancedSellerTools() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [selectedListing])
 
   const getScoreColor = (score: number) => {
     if (score >= 80) return 'text-green-600'

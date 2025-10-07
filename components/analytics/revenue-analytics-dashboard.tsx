@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
 import { Button } from '../ui/button'
@@ -10,15 +10,10 @@ import { Euro, TrendingUp, TrendingDown, DollarSign, FileText, Calendar, AlertTr
 
 export default function RevenueAnalyticsDashboard() {
   const [data, setData] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
   const [timeFrame, setTimeFrame] = useState('30d')
   const [activeTab, setActiveTab] = useState('overview')
 
-  useEffect(() => {
-    fetchRevenueData()
-  }, [timeFrame])
-
-  const fetchRevenueData = async () => {
+  const fetchRevenueData = useCallback(async () => {
     try {
       setLoading(true)
       const response = await fetch(`/api/analytics/revenue?timeFrame=${timeFrame}`)
@@ -31,16 +26,11 @@ export default function RevenueAnalyticsDashboard() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [timeFrame])
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
-      </div>
-    )
-  }
-
+  useEffect(() => {
+    fetchRevenueData()
+  }, [fetchRevenueData, timeFrame])
   if (!data) {
     return (
       <div className="text-center py-12">

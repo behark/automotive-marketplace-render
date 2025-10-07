@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
 import { Button } from '../ui/button'
@@ -58,11 +58,7 @@ export default function SellerPerformanceDashboard() {
   const [timeFrame, setTimeFrame] = useState('30d')
   const [activeTab, setActiveTab] = useState('overview')
 
-  useEffect(() => {
-    fetchPerformanceData()
-  }, [timeFrame])
-
-  const fetchPerformanceData = async () => {
+  const fetchPerformanceData = useCallback(async () => {
     try {
       setLoading(true)
       const response = await fetch(`/api/analytics/seller-performance?timeFrame=${timeFrame}`)
@@ -75,7 +71,11 @@ export default function SellerPerformanceDashboard() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [timeFrame])
+
+  useEffect(() => {
+    fetchPerformanceData()
+  }, [fetchPerformanceData, timeFrame])
 
   if (loading) {
     return (

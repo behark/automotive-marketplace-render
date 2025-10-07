@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
 
 interface FavoriteButtonProps {
@@ -14,13 +14,7 @@ export function FavoriteButton({ listingId, className = '', showLabel = false }:
   const [isFavorited, setIsFavorited] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
-  useEffect(() => {
-    if (status === 'authenticated') {
-      checkFavoriteStatus()
-    }
-  }, [listingId, status])
-
-  const checkFavoriteStatus = async () => {
+  const checkFavoriteStatus = useCallback(async () => {
     try {
       const response = await fetch('/api/favorites')
 
@@ -32,7 +26,13 @@ export function FavoriteButton({ listingId, className = '', showLabel = false }:
     } catch (error) {
       console.error('Error checking favorite status:', error)
     }
-  }
+  }, [listingId])
+
+  useEffect(() => {
+    if (status === 'authenticated') {
+      checkFavoriteStatus()
+    }
+  }, [checkFavoriteStatus, listingId, status])
 
   const toggleFavorite = async () => {
     if (status !== 'authenticated') {
