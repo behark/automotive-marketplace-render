@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
 import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
 
 const prisma = new PrismaClient()
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession()
+    const session = await getServerSession(authOptions)
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -195,15 +196,17 @@ async function getLeadManagement(dealerId: string, startDate: Date) {
   }
 
   // Lead quality by car type
-  const leadsByCarType = {}
+  const leadsByCarType = {} as Record<string, { count: number; converted: number; avgQuality: number; conversionRate?: number }>
   leads.forEach(lead => {
-    const carType = `${lead.listing.make} ${lead.listing.model}`
-    if (!leadsByCarType[carType]) {
-      leadsByCarType[carType] = { count: 0, converted: 0, avgQuality: 0 }
+    if (lead.listing) {
+      const carType = `${lead.listing.make} ${lead.listing.model}`
+      if (!leadsByCarType[carType]) {
+        leadsByCarType[carType] = { count: 0, converted: 0, avgQuality: 0 }
+      }
+      leadsByCarType[carType].count++
+      if (lead.status === 'converted') leadsByCarType[carType].converted++
+      leadsByCarType[carType].avgQuality += lead.qualityScore
     }
-    leadsByCarType[carType].count++
-    if (lead.status === 'converted') leadsByCarType[carType].converted++
-    leadsByCarType[carType].avgQuality += lead.qualityScore
   })
 
   Object.keys(leadsByCarType).forEach(carType => {
@@ -244,10 +247,18 @@ async function getInventoryOptimization(dealerId: string, startDate: Date) {
   })
 
   // Inventory analysis by car characteristics
-  const inventoryByMake = {}
-  const inventoryByYear = {}
-  const inventoryByPriceRange = {}
-  const slowMovingInventory = []
+  const inventoryByMake: Record<string, { count: number; sold: number; avgDaysToSell: number; avgPrice: number; conversionRate?: number }> = {}
+  const inventoryByYear: Record<string, { count: number; sold: number; avgPrice: number; conversionRate?: number }> = {}
+  const inventoryByPriceRange: Record<string, { count: number; sold: number; conversionRate?: number }> = {}
+  const slowMovingInventory: Array<{
+    id: string;
+    title: string;
+    price: number;
+    daysSinceCreated: number;
+    make: string;
+    model: string;
+    year: number;
+  }> = []
 
   listings.forEach(listing => {
     // By make
