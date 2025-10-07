@@ -57,7 +57,7 @@ export default function ForgotPasswordPage() {
             Keni harruar fjalëkalimin?
           </h2>
           <p className="text-gray-600">
-            Mos u shqetësoni! Shkruani adresën tuaj të emailit dhe ne do t'ju dërgojmë një lidhje për ta rivendosur atë.
+            Mos u shqetësoni! Shkruani adresën tuaj të emailit dhe ne do t&apos;ju dërgojmë një lidhje për ta rivendosur atë.
           </p>
         </div>
 
@@ -218,7 +218,7 @@ export default function ForgotPasswordPage() {
             <div>
               <p className="text-sm font-medium text-blue-900 mb-1">Sigurinë e Llogarisë</p>
               <p className="text-xs text-blue-700">
-                Për sigurinë tuaj, asnjëherë nuk do t'ju kërkojmë fjalëkalimin tuaj përmes email-it.
+                Për sigurinë tuaj, asnjëherë nuk do t&apos;ju kërkojmë fjalëkalimin tuaj përmes email-it.
                 Nëse merrni një email të dyshimtë, ju lutemi na raportoni menjëherë.
               </p>
             </div>
