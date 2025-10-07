@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client'
+import { Express } from 'express'
 import crypto from 'crypto'
 
 const prisma = new PrismaClient()
