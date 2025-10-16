@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-// import { useAuth } from '../../../lib/auth-context' // Temporarily disabled
+import { setLoggedIn } from '../../../lib/simple-session'
 
 export default function SignInPage() {
   const [formData, setFormData] = useState({
@@ -45,6 +45,8 @@ export default function SignInPage() {
       if (!response.ok) {
         setError(data.error || 'Email ose fjalëkalim të gabuar')
       } else {
+        // Store auth status in localStorage for persistence
+        setLoggedIn(data.user)
         router.push('/dashboard')
         router.refresh()
       }

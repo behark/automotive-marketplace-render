@@ -1,8 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-// Using simple JWT authentication
 import { useRouter } from 'next/navigation'
+import { setLoggedIn } from '../../../lib/simple-session'
 
 export default function SignUpPage() {
   const [formData, setFormData] = useState({
@@ -78,6 +78,9 @@ export default function SignUpPage() {
       })
 
       if (loginResponse.ok) {
+        const loginData = await loginResponse.json()
+        // Store auth status for persistence across pages
+        setLoggedIn(loginData.user)
         // Redirect to dashboard after successful auto-login
         router.push('/dashboard')
         router.refresh()
