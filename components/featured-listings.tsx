@@ -2,37 +2,37 @@
 
 import { useTranslation, formatCurrency } from '../lib/hooks/useTranslation'
 
-// Mock data for demo - will be replaced with real data from API
-const mockListings = [
+// Albanian featured cars for AutoMarket homepage
+const featuredCars = [
   {
-    id: '1',
-    title: '2020 BMW X5 xDrive40i',
+    id: 'bmw-x5-featured',
+    title: 'BMW X5 2020 - Gjendje e shkëlqyer',
     price: 45900,
     year: 2020,
-    mileage: 32000,
+    mileage: 25000,
     fuelType: 'Petrol',
-    location: 'Berlin',
-    image: '/api/placeholder/400/300',
+    location: 'Tiranë, Shqipëri',
+    image: '/api/placeholder/400/300?text=BMW+X5+2020',
   },
   {
-    id: '2',
-    title: '2019 Audi A4 Avant',
-    price: 28500,
+    id: 'audi-a4-featured',
+    title: 'Audi A4 2019 - Kilometerazh i ulët',
+    price: 32500,
     year: 2019,
-    mileage: 45000,
+    mileage: 18000,
     fuelType: 'Diesel',
-    location: 'Munich',
-    image: '/api/placeholder/400/300',
+    location: 'Durrës, Shqipëri',
+    image: '/api/placeholder/400/300?text=Audi+A4+2019',
   },
   {
-    id: '3',
-    title: '2021 Mercedes C-Class',
-    price: 38900,
+    id: 'mercedes-c-featured',
+    title: 'Mercedes C-Class 2021 - Si e re',
+    price: 55900,
     year: 2021,
-    mileage: 28000,
-    fuelType: 'Hybrid',
-    location: 'Hamburg',
-    image: '/api/placeholder/400/300',
+    mileage: 12000,
+    fuelType: 'Petrol',
+    location: 'Vlorë, Shqipëri',
+    image: '/api/placeholder/400/300?text=Mercedes+C-Class',
   },
 ]
 
@@ -52,7 +52,7 @@ export function FeaturedListings() {
         </div>
 
         <div className="grid md:grid-cols-3 gap-8">
-          {mockListings.map((listing) => (
+          {featuredCars.map((listing) => (
             <div
               key={listing.id}
               className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
