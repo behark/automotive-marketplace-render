@@ -1,9 +1,118 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { PrismaClient } from '@prisma/client'
-import { authOptions } from '../../../lib/auth'
 
-const prisma = new PrismaClient()
+// Simple fake car data - no database needed!
+const cars = [
+  {
+    id: 'bmw-x5-2020',
+    title: 'BMW X5 2020 - Gjendje e shkëlqyer',
+    description: 'BMW X5 në gjendje të shkëlqyer, vetëm 25,000 km. I importuar nga Gjermania.',
+    price: 45000,
+    currency: 'EUR',
+    make: 'BMW',
+    model: 'X5',
+    year: 2020,
+    mileage: 25000,
+    fuelType: 'Petrol',
+    transmission: 'Automatic',
+    bodyType: 'SUV',
+    city: 'Tiranë',
+    country: 'AL',
+    color: 'E zezë',
+    status: 'active',
+    featured: true,
+    images: '/api/placeholder/400/300?text=BMW+X5',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'audi-a4-2019',
+    title: 'Audi A4 2019 - Kilometerazh i ulët',
+    description: 'Audi A4 me kilometerazh të ulët, mirëmbajtur shumë mirë. Servisi i kompletuar.',
+    price: 32000,
+    currency: 'EUR',
+    make: 'Audi',
+    model: 'A4',
+    year: 2019,
+    mileage: 18000,
+    fuelType: 'Diesel',
+    transmission: 'Automatic',
+    bodyType: 'Sedan',
+    city: 'Durrës',
+    country: 'AL',
+    color: 'E bardhë',
+    status: 'active',
+    featured: true,
+    images: '/api/placeholder/400/300?text=Audi+A4',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'mercedes-c-class-2021',
+    title: 'Mercedes C-Class 2021 - Luksoze',
+    description: 'Mercedes C-Class në gjendje perfekte, vetëm 12,000 km. Garancion e plotë.',
+    price: 55000,
+    currency: 'EUR',
+    make: 'Mercedes',
+    model: 'C-Class',
+    year: 2021,
+    mileage: 12000,
+    fuelType: 'Petrol',
+    transmission: 'Automatic',
+    bodyType: 'Sedan',
+    city: 'Vlorë',
+    country: 'AL',
+    color: 'Argjendi',
+    status: 'active',
+    featured: true,
+    images: '/api/placeholder/400/300?text=Mercedes+C-Class',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'vw-golf-2018',
+    title: 'Volkswagen Golf 2018 - Ekonomike',
+    description: 'VW Golf në gjendje të mirë, ideale për qytet. Konsum i ulët.',
+    price: 18500,
+    currency: 'EUR',
+    make: 'Volkswagen',
+    model: 'Golf',
+    year: 2018,
+    mileage: 45000,
+    fuelType: 'Diesel',
+    transmission: 'Manual',
+    bodyType: 'Hatchback',
+    city: 'Shkodër',
+    country: 'AL',
+    color: 'E kuqe',
+    status: 'active',
+    featured: false,
+    images: '/api/placeholder/400/300?text=VW+Golf',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'ford-focus-2017',
+    title: 'Ford Focus 2017 - I besueshëm',
+    description: 'Ford Focus me histori të plotë servisi. Makine shumë e besueshme.',
+    price: 15800,
+    currency: 'EUR',
+    make: 'Ford',
+    model: 'Focus',
+    year: 2017,
+    mileage: 38000,
+    fuelType: 'Petrol',
+    transmission: 'Manual',
+    bodyType: 'Hatchback',
+    city: 'Korçë',
+    country: 'AL',
+    color: 'Blu',
+    status: 'active',
+    featured: false,
+    images: '/api/placeholder/400/300?text=Ford+Focus',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  }
+]
 
 // GET /api/listings - Get all listings with filters
 export async function GET(request: NextRequest) {
@@ -17,76 +126,53 @@ export async function GET(request: NextRequest) {
     const make = searchParams.get('make')
     const fuelType = searchParams.get('fuelType')
     const location = searchParams.get('location')
-    const page = parseInt(searchParams.get('page') || '1')
-    const limit = parseInt(searchParams.get('limit') || '12')
-    const sort = searchParams.get('sort') || 'createdAt'
-    const order = searchParams.get('order') || 'desc'
 
-    // Build where clause
-    const where: any = {
-      status: 'active'
-    }
+    let filteredCars = [...cars]
 
-    // Add search filters
+    // Apply search filter
     if (search) {
-      where.OR = [
-        { title: { contains: search, mode: 'insensitive' } },
-        { make: { contains: search, mode: 'insensitive' } },
-        { model: { contains: search, mode: 'insensitive' } },
-        { description: { contains: search, mode: 'insensitive' } }
-      ]
+      filteredCars = filteredCars.filter(car =>
+        car.title.toLowerCase().includes(search.toLowerCase()) ||
+        car.make.toLowerCase().includes(search.toLowerCase()) ||
+        car.model.toLowerCase().includes(search.toLowerCase())
+      )
     }
 
-    if (minPrice) {
-      where.price = { ...where.price, gte: parseInt(minPrice) * 100 } // Convert to cents
-    }
-
-    if (maxPrice) {
-      where.price = { ...where.price, lte: parseInt(maxPrice) * 100 } // Convert to cents
-    }
-
+    // Apply filters
     if (make) {
-      where.make = make
+      filteredCars = filteredCars.filter(car =>
+        car.make.toLowerCase().includes(make.toLowerCase())
+      )
     }
 
     if (fuelType) {
-      where.fuelType = fuelType
+      filteredCars = filteredCars.filter(car =>
+        car.fuelType.toLowerCase().includes(fuelType.toLowerCase())
+      )
     }
 
     if (location) {
-      where.city = { contains: location, mode: 'insensitive' }
+      filteredCars = filteredCars.filter(car =>
+        car.city.toLowerCase().includes(location.toLowerCase())
+      )
     }
 
-    // Get total count for pagination
-    const total = await prisma.listing.count({ where })
+    if (minPrice) {
+      filteredCars = filteredCars.filter(car => car.price >= parseInt(minPrice))
+    }
 
-    // Get listings with pagination
-    const listings = await prisma.listing.findMany({
-      where,
-      include: {
-        user: {
-          select: { id: true, name: true, email: true }
-        }
-      },
-      orderBy: { [sort]: order as 'asc' | 'desc' },
-      skip: (page - 1) * limit,
-      take: limit
-    })
+    if (maxPrice) {
+      filteredCars = filteredCars.filter(car => car.price <= parseInt(maxPrice))
+    }
 
-    // Convert prices from cents to euros for response
-    const formattedListings = listings.map(listing => ({
-      ...listing,
-      price: listing.price / 100,
-      images: Array.isArray(listing.images) ? listing.images : (listing.images ? [listing.images] : [])
-    }))
-
+    // Return in the format the frontend expects
     return NextResponse.json({
-      listings: formattedListings,
+      listings: filteredCars,
       pagination: {
-        page,
-        limit,
-        total,
-        pages: Math.ceil(total / limit)
+        page: 1,
+        limit: 12,
+        total: filteredCars.length,
+        pages: 1
       }
     })
 
@@ -99,120 +185,10 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST /api/listings - Create new listing
+// POST endpoint - simplified for now
 export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json()
-
-    // Check authentication first
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.email) {
-      // For demo purposes, allow unauthenticated users and use demo user
-      console.log('No session found, using demo user for listing creation')
-    }
-
-    // Basic validation with better error messages
-    const requiredFields = ['title', 'description', 'price', 'make', 'model', 'year', 'mileage', 'fuelType', 'transmission', 'city']
-    for (const field of requiredFields) {
-      if (!body[field] || body[field] === '' || body[field] === null) {
-        console.log(`Missing required field: ${field}, received:`, body[field])
-        return NextResponse.json(
-          { error: `Missing required field: ${field}. Please fill in all required information.` },
-          { status: 400 }
-        )
-      }
-    }
-
-    // Validate data types and ranges
-    const price = parseFloat(body.price)
-    const year = parseInt(body.year)
-    const mileage = parseInt(body.mileage)
-
-    if (isNaN(price) || price <= 0) {
-      return NextResponse.json(
-        { error: 'Price must be a valid positive number' },
-        { status: 400 }
-      )
-    }
-
-    if (isNaN(year) || year < 1900 || year > new Date().getFullYear() + 1) {
-      return NextResponse.json(
-        { error: 'Year must be a valid year between 1900 and next year' },
-        { status: 400 }
-      )
-    }
-
-    if (isNaN(mileage) || mileage < 0) {
-      return NextResponse.json(
-        { error: 'Mileage must be a valid positive number' },
-        { status: 400 }
-      )
-    }
-
-    // Get user (authenticated or demo user for testing)
-    let user
-    if (session?.user?.email) {
-      user = await prisma.user.findUnique({
-        where: { email: session.user.email }
-      })
-    }
-
-    // Fallback to demo user if no authenticated user
-    if (!user) {
-      user = await prisma.user.findFirst({
-        where: { email: 'demo@automarket.com' }
-      })
-    }
-
-    if (!user) {
-      return NextResponse.json(
-        { error: 'User authentication required. Please sign in to create listings.' },
-        { status: 401 }
-      )
-    }
-
-    // Create listing
-    const listing = await prisma.listing.create({
-      data: {
-        title: body.title,
-        description: body.description,
-        price: Math.round(parseFloat(body.price) * 100), // Convert to cents
-        make: body.make,
-        model: body.model,
-        year: parseInt(body.year),
-        mileage: parseInt(body.mileage),
-        fuelType: body.fuelType,
-        transmission: body.transmission,
-        bodyType: body.bodyType || '',
-        color: body.color || '',
-        city: body.city,
-        country: body.country || 'DE',
-        images: Array.isArray(body.images) ? body.images : (body.images ? [body.images] : []),
-        status: 'active',
-        featured: body.featured || false,
-        userId: user.id
-      },
-      include: {
-        user: {
-          select: { id: true, name: true, email: true }
-        }
-      }
-    })
-
-    // Format response
-    const formattedListing = {
-      ...listing,
-      price: listing.price / 100,
-      images: Array.isArray(listing.images) ? listing.images : (listing.images ? [listing.images] : [])
-    }
-
-    return NextResponse.json(formattedListing, { status: 201 })
-
-  } catch (error) {
-    console.error('Error creating listing:', error)
-    return NextResponse.json(
-      { error: 'Failed to create listing' },
-      { status: 500 }
-    )
-  }
+  return NextResponse.json({
+    message: 'Creating new listings is temporarily disabled while we improve the system.',
+    success: false
+  }, { status: 503 })
 }
