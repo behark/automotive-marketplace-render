@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useAuth } from '../../../lib/auth-context'
+// import { useAuth } from '../../../lib/auth-context' // Temporarily disabled
 
 export default function SignInPage() {
   const [formData, setFormData] = useState({
@@ -11,8 +11,8 @@ export default function SignInPage() {
     rememberMe: false
   })
   const [error, setError] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
-  const { login, isLoading } = useAuth()
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target
@@ -25,19 +25,33 @@ export default function SignInPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setIsLoading(true)
     setError('')
 
     try {
-      const success = await login(formData.email, formData.password)
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      })
 
-      if (success) {
+      const data = await response.json()
+
+      if (!response.ok) {
+        setError(data.error || 'Email ose fjalëkalim të gabuar')
+      } else {
         router.push('/dashboard')
         router.refresh()
-      } else {
-        setError('Email ose fjalëkalim të gabuar')
       }
     } catch (error) {
       setError('Gabim në identifikim. Provojeni përsëri.')
+    } finally {
+      setIsLoading(false)
     }
   }
 
