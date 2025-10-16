@@ -157,10 +157,10 @@ export default function ListingsPage() {
       <div className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-4">
-            Browse Cars
+            Shfleto Makinat
           </h1>
           <p className="text-lg text-gray-600">
-            Find your perfect car from our extensive collection
+            Gjeni makinën tuaj të përkryer nga koleksioni ynë i gjerë
           </p>
         </div>
       </div>
@@ -170,13 +170,13 @@ export default function ListingsPage() {
           {/* Filters Sidebar */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-lg shadow-md p-6 sticky top-6">
-              <h3 className="text-lg font-semibold mb-4">Filters</h3>
+              <h3 className="text-lg font-semibold mb-4">Filtrat</h3>
 
               <div className="space-y-4">
                 {/* Search */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Search
+                    Kërko
                   </label>
                   <input
                     type="text"
@@ -190,7 +190,7 @@ export default function ListingsPage() {
                 {/* Price Range */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Price Range
+                    Intervali i Çmimit
                   </label>
                   <div className="grid grid-cols-2 gap-2">
                     <input
@@ -213,14 +213,14 @@ export default function ListingsPage() {
                 {/* Make */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Make
+                    Marka
                   </label>
                   <select
                     value={filters.make}
                     onChange={(e) => handleFilterChange('make', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
-                    <option value="">All Makes</option>
+                    <option value="">Të gjitha Markat</option>
                     <option value="BMW">BMW</option>
                     <option value="Audi">Audi</option>
                     <option value="Mercedes">Mercedes</option>
@@ -232,7 +232,7 @@ export default function ListingsPage() {
                 {/* Fuel Type */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Fuel Type
+                    Lloji i Karburantit
                   </label>
                   <select
                     value={filters.fuelType}
@@ -250,7 +250,7 @@ export default function ListingsPage() {
                 {/* Location */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Location
+                    Vendndodhja
                   </label>
                   <input
                     type="text"
@@ -273,7 +273,7 @@ export default function ListingsPage() {
                   })}
                   className="w-full px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
                 >
-                  Clear Filters
+                  Pastro Filtrat
                 </button>
               </div>
             </div>
@@ -284,14 +284,14 @@ export default function ListingsPage() {
             {/* Results Header */}
             <div className="flex justify-between items-center mb-6">
               <p className="text-gray-600">
-                {filteredListings.length} cars found
+                {filteredListings.length} makina u gjetën
               </p>
               <select className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                <option>Sort by: Newest First</option>
-                <option>Price: Low to High</option>
-                <option>Price: High to Low</option>
-                <option>Mileage: Low to High</option>
-                <option>Year: Newest First</option>
+                <option>Rendit sipas: Më të Rejat</option>
+                <option>Çmimi: Nga më i Ulëti</option>
+                <option>Çmimi: Nga më i Larti</option>
+                <option>Kilometrazhi: Nga më i Ulëti</option>
+                <option>Viti: Nga më të Rejat</option>
               </select>
             </div>
 
