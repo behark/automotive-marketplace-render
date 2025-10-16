@@ -1,0 +1,1306 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String?  // Hashed password for local auth
+  name      String?
+  phone     String?
+  role      String   @default("user") // user, dealer, admin
+  plan      String   @default("basic") // basic, premium, dealer, enterprise
+  stripeCustomerId String?
+  subscriptionStatus String @default("inactive") // inactive, active, canceled, past_due
+  subscriptionEndDate DateTime?
+
+  // Revenue tracking
+  totalCommissionOwed Int @default(0) // Total commission owed in cents
+  totalCommissionPaid Int @default(0) // Total commission paid in cents
+  leadCredits Int @default(0) // Available lead purchase credits
+  isVerified Boolean @default(false) // Verified user for lead quality scoring
+
+  // Trust & Safety
+  trustScore Int @default(50) // Trust score 0-100
+  verificationLevel String @default("none") // none, phone, id, business, bank, full
+  isBlocked Boolean @default(false)
+  blockReason String?
+  blockedAt DateTime?
+  lastActiveAt DateTime?
+  twoFactorEnabled Boolean @default(false)
+
+  // Privacy settings
+  hidePhoneNumber Boolean @default(true)
+  hideEmail Boolean @default(true)
+  allowDirectContact Boolean @default(false)
+  anonymousBrowsing Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  listings      Listing[]
+  messages      Message[]
+  favorites     Favorite[]
+  sessions      Session[]
+  payments      Payment[]
+  subscriptions Subscription[]
+  commissions   Commission[]
+  leads         Lead[]
+  purchasedLeads Lead[] @relation("LeadPurchaser")
+  enhancements  ListingEnhancement[]
+
+  // Trust & Safety Relations
+  verification  UserVerification?
+  reviews       Review[] @relation("ReviewAuthor")
+  receivedReviews Review[] @relation("ReviewTarget")
+  reviewResponses ReviewResponse[]
+  reports       UserReport[] @relation("Reporter")
+  reportedBy    UserReport[] @relation("Reported")
+  reviewReports ReviewReport[]
+  escrowTransactions EscrowTransaction[] @relation("EscrowUser")
+  escrowCounterparts EscrowTransaction[] @relation("EscrowCounterpart")
+  contentModerations ContentModeration[]
+  securityLogs  SecurityLog[]
+
+  // Automation Relations
+  savedSearches SavedSearch[]
+  priceDropWatches PriceDropWatch[]
+  automationPreferences AutomationPreferences?
+  notificationLogs NotificationLog[]
+
+  // AI Relations
+  interactions UserInteraction[]
+  chatbotConversations ChatbotConversation[]
+  fraudAlerts FraudAlert[]
+
+  @@map("marketplace_users")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expires])
+  @@map("marketplace_sessions")
+}
+
+model Listing {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  price       Int      // Price in cents
+  currency    String   @default("EUR")
+
+  // Car details
+  make        String
+  model       String
+  year        Int
+  mileage     Int
+  fuelType    String
+  transmission String
+  bodyType    String
+  color       String?
+
+  // Location
+  city        String
+  country     String   @default("AL") // Albania as default
+
+  // Status and revenue features
+  status      String   @default("active") // active, sold, expired
+  featured    Boolean  @default(false)
+  soldPrice   Int?     // Actual sale price for commission calculation
+  soldDate    DateTime? // Date when marked as sold
+  commissionRate Float @default(0.035) // 3.5% default commission rate
+  commissionPaid Boolean @default(false) // Whether commission has been paid
+
+  // Premium features
+  bumpedAt    DateTime? // Last time listing was bumped to top
+  homepageFeature Boolean @default(false) // Featured on homepage
+  priorityPlacement Int @default(0) // Higher number = higher placement
+
+  // AI-powered features
+  region      String?  // For regional pricing differences (Tiranë, Durrës, Vlorë, etc.)
+  aiGeneratedDescription String? // AI-enhanced description in Albanian
+  seoTitle              String? // SEO-optimized title for Albanian search
+  marketPriceScore      Float?  // AI price analysis score (0-100)
+  recommendedPrice      Int?    // AI suggested price in cents
+  priceAdjustmentReason String? // Reasoning for price suggestion
+  qualityScore          Float?  // Overall listing quality score (0-100)
+  photoQualityScores    Json?   // Individual photo quality scores
+  fraudRiskScore        Float?  // Fraud detection score (0-100, higher = more suspicious)
+  contentModerationFlags Json?  // Content moderation flags and reasons
+  viewPrediction        Int?    // Predicted number of views in next 30 days
+  sellProbability       Float?  // Probability of selling within 90 days (0-1)
+  optimalPricingTime    DateTime? // Best time to adjust pricing
+  similarListings       Json?   // Array of similar listing IDs for recommendations
+  seasonalDemandScore   Float?  // Seasonal demand prediction (0-100)
+  marketTrendScore      Float?  // Current market trend score for this car type
+  aiProcessedAt         DateTime? // Last time AI analysis was run
+
+  // Images (stored as JSON array for PostgreSQL)
+  images      Json?      // Array of image URLs/paths
+
+  // Metadata
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  expiresAt   DateTime @default(dbgenerated("(now() + interval '90 days')"))
+
+  // Relations
+  userId      String
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  favorites   Favorite[]
+  messages    Message[]
+  payments    Payment[]
+  commission  Commission?
+  leads       Lead[]
+  enhancements ListingEnhancement[]
+
+  // Trust & Safety Relations
+  reviews     Review[]
+  reports     UserReport[]
+  vehicleVerification VehicleVerification?
+  escrowTransactions EscrowTransaction[]
+  transactionSafety TransactionSafety?
+
+  // AI Relations
+  priceHistories PriceHistory[]
+  interactions UserInteraction[]
+  aiInsights  AiInsight[]
+  generatedContent GeneratedContent[]
+  fraudAlerts FraudAlert[]
+
+  // Indexes for search performance
+  @@index([make, model])
+  @@index([price])
+  @@index([city, region])
+  @@index([status])
+  @@index([createdAt])
+  @@index([priorityPlacement])
+  @@index([featured])
+  @@index([qualityScore])
+  @@index([fraudRiskScore])
+  @@index([sellProbability])
+  @@index([marketTrendScore])
+  @@map("marketplace_listings")
+}
+
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  listingId String
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, listingId])
+  @@index([userId])
+  @@index([listingId])
+  @@index([createdAt])
+  @@map("marketplace_favorites")
+}
+
+model Message {
+  id          String   @id @default(cuid())
+  content     String
+  senderId    String
+  listingId   String
+  createdAt   DateTime @default(now())
+  read        Boolean  @default(false)
+
+  sender      User     @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  listing     Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@index([listingId])
+  @@index([senderId])
+  @@map("marketplace_messages")
+}
+
+model Payment {
+  id                String   @id @default(cuid())
+  stripePaymentId   String   @unique
+  userId            String
+  listingId         String?  // For featured listing payments
+  amount            Int      // Amount in cents
+  currency          String   @default("eur")
+  status            String   // succeeded, pending, failed
+  type              String   // featured_listing, subscription, one_time
+  description       String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listing           Listing? @relation(fields: [listingId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([status])
+  @@index([type])
+  @@index([createdAt])
+  @@index([listingId])
+  @@map("marketplace_payments")
+}
+
+model Subscription {
+  id                   String   @id @default(cuid())
+  stripeSubscriptionId String   @unique
+  userId               String
+  plan                 String   // premium, dealer, enterprise
+  status               String   // active, canceled, past_due, incomplete
+  currentPeriodStart   DateTime
+  currentPeriodEnd     DateTime
+  cancelAtPeriodEnd    Boolean  @default(false)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  // Relations
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@index([plan])
+  @@index([currentPeriodEnd])
+  @@index([createdAt])
+  @@map("marketplace_subscriptions")
+}
+
+// Commission tracking for sold vehicles
+model Commission {
+  id              String   @id @default(cuid())
+  listingId       String   @unique
+  sellerId        String   // User who sold the car
+  salePrice       Int      // Final sale price in cents
+  commissionRate  Float    // Commission percentage (e.g., 0.035 for 3.5%)
+  commissionAmount Int     // Commission amount in cents
+  status          String   @default("pending") // pending, invoiced, paid, disputed
+  dueDate         DateTime // When commission payment is due
+  paidDate        DateTime? // When commission was actually paid
+  stripePaymentId String?  // Stripe payment intent ID for commission payment
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  listing         Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  seller          User     @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@index([dueDate])
+  @@index([sellerId])
+  @@map("marketplace_commissions")
+}
+
+// Lead generation and monetization
+model Lead {
+  id              String   @id @default(cuid())
+  listingId       String
+  sellerId        String   // Owner of the listing
+  buyerId         String?  // User who purchased this lead
+  contactInfo     Json     // Buyer contact information (name, email, phone)
+  message         String?  // Buyer's message/inquiry
+  qualityScore    Int      @default(0) // Lead quality score (0-100)
+  price           Int      // Price to purchase this lead in cents
+  status          String   @default("available") // available, purchased, contacted, converted
+  purchasedAt     DateTime?
+  contactedAt     DateTime? // When seller contacted the buyer
+  convertedAt     DateTime? // When lead resulted in sale
+  stripePaymentId String?  // Payment for purchasing the lead
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  listing         Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  seller          User     @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  buyer           User?    @relation("LeadPurchaser", fields: [buyerId], references: [id], onDelete: SetNull)
+
+  @@index([status])
+  @@index([sellerId])
+  @@index([buyerId])
+  @@index([createdAt])
+  @@map("marketplace_leads")
+}
+
+// Listing enhancement tracking
+model ListingEnhancement {
+  id              String   @id @default(cuid())
+  listingId       String
+  userId          String
+  type            String   // bump, featured, homepage, video, photos, inspection, etc.
+  status          String   @default("active") // active, expired, cancelled
+  price           Int      // Price paid in cents
+  duration        Int?     // Duration in hours (for timed enhancements)
+  metadata        Json?    // Additional data specific to enhancement type
+  expiresAt       DateTime?
+  stripePaymentId String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  listing         Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([type])
+  @@index([status])
+  @@index([expiresAt])
+  @@index([listingId])
+  @@map("marketplace_listing_enhancements")
+}
+
+// Partnership revenue tracking
+model PartnershipRevenue {
+  id              String   @id @default(cuid())
+  userId          String?  // User who generated the revenue (optional)
+  listingId       String?  // Associated listing (optional)
+  partnerType     String   // insurance, financing, warranty, inspection, photography
+  partnerName     String   // Name of partner company
+  revenueType     String   // commission, referral_fee, service_fee
+  amount          Int      // Revenue amount in cents
+  commission      Int      // Our commission from this revenue in cents
+  status          String   @default("pending") // pending, confirmed, paid
+  referenceId     String?  // Partner's transaction/reference ID
+  metadata        Json?    // Additional partner-specific data
+  confirmedAt     DateTime?
+  paidAt          DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([partnerType])
+  @@index([status])
+  @@index([createdAt])
+  @@map("marketplace_partnership_revenue")
+}
+
+// Revenue analytics and reporting
+model RevenueReport {
+  id              String   @id @default(cuid())
+  reportType      String   // daily, weekly, monthly, quarterly, yearly
+  period          String   // e.g., "2024-01", "2024-Q1", "2024-01-15"
+  totalRevenue    Int      // Total revenue in cents
+  commissionRevenue Int    // Revenue from commissions
+  subscriptionRevenue Int  // Revenue from subscriptions
+  leadRevenue     Int      // Revenue from lead sales
+  enhancementRevenue Int   // Revenue from listing enhancements
+  partnershipRevenue Int   // Revenue from partnerships
+  totalCosts      Int      // Total costs (Stripe fees, etc.)
+  netRevenue      Int      // Net revenue after costs
+  activeUsers     Int      // Number of active users
+  paidUsers       Int      // Number of paying users
+  listingsSold    Int      // Number of listings marked as sold
+  leadsGenerated  Int      // Number of leads generated
+  metadata        Json?    // Additional metrics and breakdowns
+  generatedAt     DateTime @default(now())
+
+  @@unique([reportType, period])
+  @@index([reportType])
+  @@index([period])
+  @@map("marketplace_revenue_reports")
+}
+
+// AI-Powered Features Models
+
+// User interaction tracking for recommendation engine
+model UserInteraction {
+  id          String   @id @default(cuid())
+  userId      String
+  listingId   String
+  type        String   // view, favorite, contact, share, report
+  duration    Int?     // Time spent viewing (in seconds)
+  metadata    Json?    // Additional interaction data
+  ipAddress   String?  // For fraud detection
+  userAgent   String?  // Browser/device info
+  createdAt   DateTime @default(now())
+
+  // Relations
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listing     Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([listingId])
+  @@index([type])
+  @@index([createdAt])
+  @@map("marketplace_user_interactions")
+}
+
+// Price history tracking for market analysis
+model PriceHistory {
+  id          String   @id @default(cuid())
+  listingId   String
+  oldPrice    Int      // Previous price in cents
+  newPrice    Int      // New price in cents
+  changeReason String? // manual, ai_suggestion, market_trend, etc.
+  aiSuggested Boolean  @default(false) // Whether change was AI-suggested
+  metadata    Json?    // Additional context
+  createdAt   DateTime @default(now())
+
+  // Relations
+  listing     Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@index([listingId])
+  @@index([createdAt])
+  @@map("marketplace_price_histories")
+}
+
+// AI insights and recommendations
+model AiInsight {
+  id          String   @id @default(cuid())
+  listingId   String
+  type        String   // price_recommendation, quality_improvement, fraud_alert, etc.
+  priority    String   @default("medium") // low, medium, high, urgent
+  title       String   // Short description in Albanian
+  description String   // Detailed explanation in Albanian
+  actionRequired Boolean @default(false)
+  actionType  String?  // adjust_price, improve_photos, add_details, etc.
+  confidence  Float?   // Confidence score (0-1)
+  metadata    Json?    // Additional data and recommendations
+  dismissed   Boolean  @default(false)
+  dismissedAt DateTime?
+  actedUpon   Boolean  @default(false)
+  actedAt     DateTime?
+  createdAt   DateTime @default(now())
+  expiresAt   DateTime?
+
+  // Relations
+  listing     Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@index([listingId])
+  @@index([type])
+  @@index([priority])
+  @@index([dismissed])
+  @@index([createdAt])
+  @@map("marketplace_ai_insights")
+}
+
+// Albanian automotive market data for AI training
+model MarketData {
+  id              String   @id @default(cuid())
+  make            String
+  model           String
+  year            Int
+  region          String   // Albanian region
+  averagePrice    Int      // Average market price in cents
+  medianPrice     Int      // Median market price in cents
+  listingCount    Int      // Number of active listings
+  soldCount       Int      // Number sold in period
+  averageDaysToSell Int?   // Average time to sell
+  demandScore     Float    // Market demand score (0-100)
+  trendDirection  String   // up, down, stable
+  seasonalFactor  Float    // Seasonal multiplier
+  dataSource      String   // manual, scraped, user_reported
+  period          String   // Month identifier (YYYY-MM)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([make, model, year, region, period])
+  @@index([make, model, year])
+  @@index([region])
+  @@index([period])
+  @@map("marketplace_market_data")
+}
+
+// Chatbot conversations for customer support
+model ChatbotConversation {
+  id              String   @id @default(cuid())
+  userId          String?  // Null if anonymous user
+  sessionId       String   // Unique session identifier
+  language        String   @default("sq") // sq (Albanian), en (English)
+  status          String   @default("active") // active, resolved, escalated
+  escalatedAt     DateTime?
+  resolvedAt      DateTime?
+  satisfaction    Int?     // 1-5 rating
+  category        String?  // general, pricing, technical, fraud, etc.
+  tags            Json?    // Array of conversation tags
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  user            User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  messages        ChatbotMessage[]
+
+  @@index([userId])
+  @@index([sessionId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("marketplace_chatbot_conversations")
+}
+
+// Individual chatbot messages
+model ChatbotMessage {
+  id              String   @id @default(cuid())
+  conversationId  String
+  sender          String   // user, bot, human_agent
+  content         String   // Message content
+  intent          String?  // Detected user intent
+  confidence      Float?   // Intent confidence score
+  context         Json?    // Additional context data
+  language        String   @default("sq")
+  needsEscalation Boolean  @default(false)
+  createdAt       DateTime @default(now())
+
+  // Relations
+  conversation    ChatbotConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+  @@index([sender])
+  @@index([createdAt])
+  @@map("marketplace_chatbot_messages")
+}
+
+// Content generation history
+model GeneratedContent {
+  id              String   @id @default(cuid())
+  listingId       String?  // Associated listing
+  contentType     String   // description, title, social_post, email, etc.
+  originalContent String?  // Original user content
+  generatedContent String  // AI-generated content
+  language        String   @default("sq") // sq (Albanian), en (English)
+  prompt          String?  // AI prompt used
+  model           String?  // AI model used
+  approved        Boolean  @default(false)
+  approvedAt      DateTime?
+  usageCount      Int      @default(0) // How many times this content was used
+  feedback        String?  // User feedback
+  rating          Int?     // User rating 1-5
+  createdAt       DateTime @default(now())
+
+  // Relations
+  listing         Listing? @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@index([listingId])
+  @@index([contentType])
+  @@index([language])
+  @@index([approved])
+  @@index([createdAt])
+  @@map("marketplace_generated_content")
+}
+
+// Fraud detection alerts and analysis
+model FraudAlert {
+  id              String   @id @default(cuid())
+  listingId       String?
+  userId          String?
+  alertType       String   // duplicate_images, suspicious_pricing, fake_contact, etc.
+  severity        String   // low, medium, high, critical
+  description     String   // Alert description in Albanian
+  evidence        Json     // Supporting evidence and data
+  status          String   @default("pending") // pending, investigating, resolved, false_positive
+  assignedTo      String?  // Admin user ID
+  resolutionNotes String?
+  autoGenerated   Boolean  @default(true)
+  resolvedAt      DateTime?
+  createdAt       DateTime @default(now())
+
+  // Relations
+  listing         Listing? @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  user            User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([listingId])
+  @@index([userId])
+  @@index([alertType])
+  @@index([severity])
+  @@index([status])
+  @@index([createdAt])
+  @@map("marketplace_fraud_alerts")
+}
+
+// ================================
+// TRUST, SAFETY & VERIFICATION MODELS
+// ================================
+
+// Albanian-specific user verification system
+model UserVerification {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+
+  // Phone verification (Albanian carriers: Vodafone, Telekom, ONE)
+  phoneVerified   Boolean  @default(false)
+  phoneNumber     String?
+  phoneCarrier    String?  // vodafone_al, telekom_al, one_al
+  phoneVerifiedAt DateTime?
+  phoneVerificationCode String?
+  phoneVerificationExpires DateTime?
+
+  // Albanian ID document verification
+  idVerified      Boolean  @default(false)
+  idType          String?  // id_card, passport, driving_license
+  idNumber        String?  // Encrypted
+  idDocumentUrl   String?  // Secure document storage URL
+  idVerifiedAt    DateTime?
+  idVerificationNotes String?
+
+  // Bank account verification for sellers
+  bankVerified    Boolean  @default(false)
+  bankName        String?  // Albanian banks: BKT, Raiffeisen, Intesa, etc.
+  bankAccountLast4 String? // Last 4 digits for reference
+  bankVerifiedAt  DateTime?
+
+  // Business registration for dealers
+  businessVerified Boolean @default(false)
+  businessName    String?
+  businessNumber  String?  // Albanian business registration number
+  businessType    String?  // llc, sole_proprietorship, corporation
+  businessAddress String?
+  businessVerifiedAt DateTime?
+  businessDocumentUrl String?
+
+  // Address verification
+  addressVerified Boolean  @default(false)
+  addressLine1    String?
+  addressLine2    String?
+  city           String?
+  postalCode     String?
+  country        String?  @default("AL")
+  addressVerifiedAt DateTime?
+  addressVerificationMethod String? // postal_mail, utility_bill, bank_statement
+
+  // Multi-factor authentication
+  mfaSecret      String?  // TOTP secret (encrypted)
+  mfaBackupCodes Json?    // Array of backup codes
+  mfaEnabled     Boolean  @default(false)
+  mfaSetupAt     DateTime?
+
+  // Verification metadata
+  verificationAttempts Int @default(0)
+  lastVerificationAttempt DateTime?
+  verificationNotes String?
+  verifierAdminId String? // Admin who verified
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([phoneNumber])
+  @@index([idNumber])
+  @@index([businessNumber])
+  @@map("marketplace_user_verifications")
+}
+
+// Review and reputation system with Albanian language support
+model Review {
+  id              String   @id @default(cuid())
+  authorId        String   // User writing the review
+  targetId        String   // User being reviewed
+  listingId       String?  // Optional: review related to specific listing
+  transactionId   String?  // Optional: review related to specific transaction
+
+  // Review content
+  rating          Int      // 1-5 stars
+  title           String?
+  content         String
+  language        String   @default("sq") // sq (Albanian), en (English)
+
+  // Review verification and authenticity
+  isVerified      Boolean  @default(false) // Verified as authentic transaction
+  verificationMethod String? // transaction_proof, phone_verification, admin_verification
+  verifiedAt      DateTime?
+
+  // Albanian cultural sentiment analysis
+  sentimentScore  Float?   // -1.0 (negative) to 1.0 (positive)
+  culturalScore   Float?   // Cultural appropriateness score
+  languageQuality Float?   // Native Albanian language quality score
+
+  // Moderation
+  isModerated     Boolean  @default(false)
+  moderationStatus String @default("pending") // pending, approved, rejected, flagged
+  moderatorId     String?
+  moderationNotes String?
+  moderatedAt     DateTime?
+
+  // Reporting and flags
+  reportCount     Int      @default(0)
+  isFlagged       Boolean  @default(false)
+  flagReason      String?
+
+  // Response and interaction
+  hasResponse     Boolean  @default(false)
+  isHelpful       Boolean  @default(false)
+  helpfulVotes    Int      @default(0)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  author          User     @relation("ReviewAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  target          User     @relation("ReviewTarget", fields: [targetId], references: [id], onDelete: Cascade)
+  listing         Listing? @relation(fields: [listingId], references: [id], onDelete: SetNull)
+  responses       ReviewResponse[]
+  reports         ReviewReport[]
+
+  @@index([targetId])
+  @@index([authorId])
+  @@index([rating])
+  @@index([createdAt])
+  @@index([moderationStatus])
+  @@map("marketplace_reviews")
+}
+
+// Review responses for back-and-forth communication
+model ReviewResponse {
+  id              String   @id @default(cuid())
+  reviewId        String
+  authorId        String   // User responding to the review
+  content         String
+  language        String   @default("sq")
+
+  // Moderation
+  isModerated     Boolean  @default(false)
+  moderationStatus String @default("pending")
+  moderatorId     String?
+  moderatedAt     DateTime?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  review          Review   @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  author          User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@map("marketplace_review_responses")
+}
+
+// Transaction security and escrow system
+model EscrowTransaction {
+  id              String   @id @default(cuid())
+  listingId       String
+  buyerId         String
+  sellerId        String
+
+  // Transaction details
+  amount          Int      // Transaction amount in cents
+  currency        String   @default("EUR")
+  escrowFee       Int      // Escrow service fee in cents
+
+  // Transaction status
+  status          String   @default("initiated") // initiated, funded, released, disputed, cancelled, completed
+
+  // Escrow conditions
+  releaseConditions Json   // Array of conditions for fund release
+  requiresInspection Boolean @default(false)
+  inspectionDeadline DateTime?
+  documentRequirements Json? // Required documents for release
+
+  // Important dates
+  fundingDeadline DateTime // When buyer must fund escrow
+  releaseDeadline DateTime // When funds auto-release if no disputes
+
+  // Payment integration
+  stripePaymentIntentId String?
+  stripeTransferId String?
+
+  // Dispute handling
+  isDisputed      Boolean  @default(false)
+  disputeReason   String?
+  disputeOpenedAt DateTime?
+  disputeResolvedAt DateTime?
+  disputeResolution String?
+  arbitratorId    String?
+
+  // Communication
+  communicationLog Json?   // Log of escrow-related communications
+
+  // Security
+  securityDeposit Int?     // Additional security deposit
+  releaseCode     String?  // Code required for manual release
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  completedAt     DateTime?
+
+  // Relations
+  listing         Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  buyer           User     @relation("EscrowUser", fields: [buyerId], references: [id], onDelete: Cascade)
+  seller          User     @relation("EscrowCounterpart", fields: [sellerId], references: [id], onDelete: Cascade)
+  logs            EscrowLog[]
+
+  @@index([status])
+  @@index([listingId])
+  @@index([buyerId])
+  @@index([sellerId])
+  @@map("marketplace_escrow_transactions")
+}
+
+// Escrow transaction logs for audit trail
+model EscrowLog {
+  id              String   @id @default(cuid())
+  escrowId        String
+  action          String   // funded, released, disputed, etc.
+  description     String
+  performedById   String?  // User who performed the action
+  metadata        Json?    // Additional action data
+  createdAt       DateTime @default(now())
+
+  // Relations
+  escrow          EscrowTransaction @relation(fields: [escrowId], references: [id], onDelete: Cascade)
+
+  @@index([escrowId])
+  @@index([createdAt])
+  @@map("marketplace_escrow_logs")
+}
+
+// Fraud prevention and stolen vehicle database
+model VehicleVerification {
+  id              String   @id @default(cuid())
+  listingId       String   @unique
+
+  // Vehicle identification
+  vin             String?  // Vehicle Identification Number
+  licensePlate    String?
+  registrationNumber String?
+  engineNumber    String?
+
+  // Verification status
+  vinVerified     Boolean  @default(false)
+  vinVerificationSource String? // police_db, insurance_db, manufacturer
+  vinVerifiedAt   DateTime?
+
+  // Stolen vehicle check
+  stolenCheck     Boolean  @default(false)
+  stolenCheckStatus String @default("pending") // pending, clear, flagged, stolen
+  stolenCheckSource String? // albanian_police, interpol, insurance
+  stolenCheckAt   DateTime?
+
+  // Import verification for foreign vehicles
+  importVerified  Boolean  @default(false)
+  importCountry   String?
+  importDocuments Json?    // Array of import document URLs
+  customsClearance Boolean @default(false)
+
+  // Document authenticity
+  registrationVerified Boolean @default(false)
+  insuranceVerified Boolean @default(false)
+  technicalInspectionValid Boolean @default(false)
+  technicalInspectionExpiry DateTime?
+
+  // History check
+  accidentHistory Json?    // Previous accidents/damage
+  ownershipHistory Json?   // Previous owners
+  maintenanceHistory Json? // Service records
+
+  // Verification notes
+  verificationNotes String?
+  flaggedReasons Json?     // Array of flagged issues
+  verifierAdminId String?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  listing         Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@index([vin])
+  @@index([licensePlate])
+  @@index([stolenCheckStatus])
+  @@map("marketplace_vehicle_verifications")
+}
+
+// Content moderation system with Albanian language AI
+model ContentModeration {
+  id              String   @id @default(cuid())
+  contentType     String   // listing, review, message, profile
+  contentId       String   // ID of the content being moderated
+  userId          String?  // User who created the content
+
+  // AI moderation results
+  aiModerationScore Float? // 0.0 (safe) to 1.0 (unsafe)
+  aiFlags         Json?    // Array of AI-detected issues
+  languageDetected String? // Detected language
+  sentimentScore  Float?   // Content sentiment
+
+  // Albanian-specific checks
+  culturalAppropriate Boolean? // Albanian cultural appropriateness
+  localLanguageQuality Float?  // Quality of Albanian language use
+  regionalRelevance Boolean?   // Relevance to Albanian market
+
+  // Spam and fraud detection
+  spamScore       Float?   // Spam probability score
+  fraudRisk       String   @default("low") // low, medium, high, critical
+  duplicateContent Boolean @default(false)
+  suspiciousPatterns Json? // Array of detected suspicious patterns
+
+  // Human moderation
+  humanReviewed   Boolean  @default(false)
+  moderatorId     String?
+  moderationDecision String? // approved, rejected, flagged, requires_edit
+  moderatorNotes  String?
+  moderatedAt     DateTime?
+
+  // Actions taken
+  actionTaken     String?  // none, warning, content_hidden, user_suspended, content_removed
+  actionReason    String?
+  actionTakenAt   DateTime?
+  actionReversed  Boolean  @default(false)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  user            User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([contentType, contentId])
+  @@index([aiModerationScore])
+  @@index([fraudRisk])
+  @@index([humanReviewed])
+  @@map("marketplace_content_moderations")
+}
+
+// User reporting system
+model UserReport {
+  id              String   @id @default(cuid())
+  reporterId      String   // User making the report
+  reportedUserId  String   // User being reported
+  reportType      String   // fraud, spam, harassment, fake_profile, stolen_vehicle
+
+  // Report details
+  reason          String
+  description     String?
+  evidence        Json?    // URLs to evidence (screenshots, documents)
+  severity        String   @default("medium") // low, medium, high, critical
+
+  // Related content
+  relatedListingId String?
+  relatedMessageId String?
+  relatedReviewId String?
+
+  // Investigation
+  status          String   @default("pending") // pending, investigating, resolved, dismissed
+  investigatorId  String?  // Admin investigating
+  investigationNotes String?
+  resolution      String?
+  resolvedAt      DateTime?
+
+  // Follow-up actions
+  actionTaken     String?  // warning, suspension, ban, listing_removal
+  actionDetails   String?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  reporter        User     @relation("Reporter", fields: [reporterId], references: [id], onDelete: Cascade)
+  reportedUser    User     @relation("Reported", fields: [reportedUserId], references: [id], onDelete: Cascade)
+  listing         Listing? @relation(fields: [relatedListingId], references: [id], onDelete: SetNull)
+
+  @@index([reportedUserId])
+  @@index([reportType])
+  @@index([status])
+  @@index([severity])
+  @@map("marketplace_user_reports")
+}
+
+// Review reporting for fake reviews
+model ReviewReport {
+  id              String   @id @default(cuid())
+  reviewId        String
+  reporterId      String
+  reason          String   // fake, spam, inappropriate, off_topic, harassment
+  description     String?
+
+  status          String   @default("pending") // pending, resolved, dismissed
+  investigatorId  String?
+  resolution      String?
+  resolvedAt      DateTime?
+
+  createdAt       DateTime @default(now())
+
+  // Relations
+  review          Review   @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  reporter        User     @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+
+  @@index([reviewId])
+  @@index([status])
+  @@map("marketplace_review_reports")
+}
+
+// Security audit logs
+model SecurityLog {
+  id              String   @id @default(cuid())
+  userId          String?
+  sessionId       String?
+
+  // Event details
+  eventType       String   // login, logout, password_change, verification_attempt, suspicious_activity
+  eventDescription String
+  ipAddress       String?
+  userAgent       String?
+  location        String?  // Detected location
+
+  // Risk assessment
+  riskLevel       String   @default("low") // low, medium, high, critical
+  riskFactors     Json?    // Array of risk factors
+
+  // Security response
+  actionTaken     String?  // none, mfa_required, account_locked, investigation_opened
+  blocked         Boolean  @default(false)
+
+  // Additional context
+  metadata        Json?    // Additional event data
+
+  createdAt       DateTime @default(now())
+
+  // Relations
+  user            User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([eventType])
+  @@index([riskLevel])
+  @@index([createdAt])
+  @@map("marketplace_security_logs")
+}
+
+// Legal compliance and dispute resolution
+model LegalCompliance {
+  id              String   @id @default(cuid())
+  complianceType  String   // gdpr, albanian_consumer_law, kosovo_law, macedonia_law
+
+  // GDPR compliance
+  dataSubjectId   String?  // User ID for GDPR requests
+  requestType     String?  // access, rectification, erasure, portability, restriction
+  requestStatus   String   @default("pending") // pending, processing, completed, rejected
+  requestDetails  String?
+
+  // Data retention
+  dataType        String?  // user_data, listing_data, transaction_data, communication_data
+  retentionPeriod Int?     // Retention period in days
+  scheduledDeletion DateTime?
+
+  // Legal disputes
+  disputeType     String?  // transaction, fraud, harassment, privacy
+  disputeParties  Json?    // Array of involved user IDs
+  disputeStatus   String?  // open, mediation, arbitration, court, resolved
+  disputeResolution String?
+
+  // Compliance documentation
+  documentType    String?  // privacy_notice, terms_update, compliance_report
+  documentUrl     String?
+  effectiveDate   DateTime?
+
+  // Regulatory reporting
+  reportingRequired Boolean @default(false)
+  reportedToAuthority Boolean @default(false)
+  authorityName   String?  // albanian_dpa, financial_authority, etc.
+  reportDate      DateTime?
+
+  processedById   String?  // Admin who processed
+  processedAt     DateTime?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([complianceType])
+  @@index([requestType])
+  @@index([dataSubjectId])
+  @@map("marketplace_legal_compliance")
+}
+
+// Safe meeting locations and safety features
+model SafetyLocation {
+  id              String   @id @default(cuid())
+  name            String   // Location name
+  address         String
+  city            String
+  country         String   @default("AL")
+
+  // Location details
+  locationType    String   // police_station, bank, shopping_center, public_square
+  description     String?
+  operatingHours  String?
+  hasParking      Boolean  @default(false)
+  hasSecurity     Boolean  @default(false)
+  hasCCTV         Boolean  @default(false)
+
+  // Verification
+  isVerified      Boolean  @default(false)
+  verifiedBy      String?  // Admin who verified
+  verificationNotes String?
+  verifiedAt      DateTime?
+
+  // Usage tracking
+  recommendationCount Int @default(0)
+  meetingCount    Int      @default(0)
+  lastUsed        DateTime?
+
+  // Geographic coordinates
+  latitude        Float?
+  longitude       Float?
+
+  // Reviews and ratings
+  averageRating   Float?   // Average safety rating
+  totalReviews    Int      @default(0)
+
+  isActive        Boolean  @default(true)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([city])
+  @@index([locationType])
+  @@index([isVerified])
+  @@map("marketplace_safety_locations")
+}
+
+// Transaction safety and insurance verification
+model TransactionSafety {
+  id              String   @id @default(cuid())
+  listingId       String   @unique
+
+  // Insurance verification
+  insuranceVerified Boolean @default(false)
+  insuranceProvider String?
+  insurancePolicyNumber String?
+  insuranceValidUntil DateTime?
+  insuranceDocumentUrl String?
+
+  // Warranty information
+  hasWarranty     Boolean  @default(false)
+  warrantyType    String?  // manufacturer, dealer, extended
+  warrantyDuration Int?    // Duration in months
+  warrantyProvider String?
+  warrantyDocumentUrl String?
+
+  // Safety compliance
+  technicalInspectionValid Boolean @default(false)
+  technicalInspectionExpiry DateTime?
+  emissionStandard String? // Euro 4, Euro 5, Euro 6
+  safetyRating    String?  // EuroNCAP rating if available
+
+  // Transaction safety measures
+  recommendSafeLocation Boolean @default(true)
+  requiresEscrow  Boolean  @default(false)
+  escrowThreshold Int?     // Minimum amount requiring escrow
+
+  // Emergency contacts
+  emergencyContactEnabled Boolean @default(false)
+  emergencyContactInfo Json? // Emergency contact details
+
+  // Post-sale support
+  returnPolicy    String?  // return_policy details
+  disputeResolution String? // Available dispute resolution methods
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  listing         Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@map("marketplace_transaction_safety")
+}
+
+// ================================
+// AUTOMATION MODELS
+// ================================
+
+// Saved search functionality
+model SavedSearch {
+  id          String   @id @default(cuid())
+  userId      String
+  name        String   // User-given name for the search
+  criteria    Json     // Search criteria object
+  isActive    Boolean  @default(true)
+  frequency   String   @default("daily") // daily, weekly, monthly
+  lastRun     DateTime?
+  resultsCount Int     @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isActive])
+  @@map("marketplace_saved_searches")
+}
+
+// Price drop watching for favorites
+model PriceDropWatch {
+  id          String   @id @default(cuid())
+  userId      String
+  listingId   String
+  watchPrice  Int      // Price when watch was set
+  threshold   Float    @default(0.05) // 5% drop threshold
+  isActive    Boolean  @default(true)
+  lastPrice   Int?     // Last known price
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([listingId])
+  @@index([isActive])
+  @@map("marketplace_price_drop_watches")
+}
+
+// User notification preferences
+model AutomationPreferences {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+
+  // Email preferences
+  emailEnabled    Boolean  @default(true)
+  emailFrequency  String   @default("daily") // realtime, daily, weekly
+
+  // SMS preferences
+  smsEnabled      Boolean  @default(false)
+  smsNumber       String?
+
+  // WhatsApp preferences
+  whatsappEnabled Boolean  @default(false)
+  whatsappNumber  String?
+
+  // Quiet hours (Albanian timezone)
+  quietHoursStart Int      @default(22) // 10 PM
+  quietHoursEnd   Int      @default(8)  // 8 AM
+
+  // Specific notification types
+  savedSearchAlerts Boolean @default(true)
+  priceDropAlerts Boolean   @default(true)
+  messageAlerts   Boolean   @default(true)
+  marketingEmails Boolean   @default(true)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("marketplace_automation_preferences")
+}
+
+// Notification delivery log
+model NotificationLog {
+  id            String   @id @default(cuid())
+  userId        String
+  type          String   // email, sms, whatsapp, push
+  category      String   // saved_search, price_drop, marketing, etc.
+  status        String   // sent, delivered, failed, bounced
+  recipientInfo String   // Email or phone number
+  subject       String?
+  content       String?
+  errorMessage  String?
+  deliveredAt   DateTime?
+  createdAt     DateTime @default(now())
+
+  // Relations
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([type])
+  @@index([status])
+  @@index([createdAt])
+  @@map("marketplace_notification_logs")
+}

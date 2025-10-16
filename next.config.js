@@ -33,6 +33,14 @@ const nextConfig = {
   // Disable problematic optimizations for Render
   swcMinify: false,
 
+  // Enforce strict type checking and linting for production
+  typescript: {
+    ignoreBuildErrors: false, // ✅ Enforcing type safety
+  },
+  eslint: {
+    ignoreDuringBuilds: false, // ✅ Enforcing code quality
+  },
+
   serverRuntimeConfig: {
     nextGeoIpLookupDisabled: 1,
   },
