@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { signIn, getSession } from 'next-auth/react'
+// Removed NextAuth dependency - using simple JWT auth
 import { useRouter } from 'next/navigation'
 
 export default function SignInPage() {
@@ -29,14 +29,21 @@ export default function SignInPage() {
     setError('')
 
     try {
-      const result = await signIn('credentials', {
-        email: formData.email,
-        password: formData.password,
-        redirect: false,
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
       })
 
-      if (result?.error) {
-        setError('Invalid email or password')
+      const data = await response.json()
+
+      if (!response.ok) {
+        setError(data.error || 'Gabim në identifikim')
       } else {
         router.push('/dashboard')
         router.refresh()

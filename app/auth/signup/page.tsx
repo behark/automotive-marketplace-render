@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { signIn } from 'next-auth/react'
+// Using simple JWT authentication
 import { useRouter } from 'next/navigation'
 
 export default function SignUpPage() {
@@ -65,16 +65,24 @@ export default function SignUpPage() {
 
       setSuccess(true)
 
-      // Auto-sign in after registration
-      const signInResult = await signIn('credentials', {
-        email: formData.email,
-        password: formData.password,
-        redirect: false,
+      // Auto-sign in after registration using our JWT system
+      const loginResponse = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
       })
 
-      if (!signInResult?.error) {
+      if (loginResponse.ok) {
+        // Redirect to dashboard after successful auto-login
         router.push('/dashboard')
+        router.refresh()
       } else {
+        // Registration worked but auto-login failed, redirect to signin
         router.push('/auth/signin')
       }
 
