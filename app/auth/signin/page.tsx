@@ -1,8 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-// Removed NextAuth dependency - using simple JWT auth
 import { useRouter } from 'next/navigation'
+import { useAuth } from '../../../lib/auth-context'
 
 export default function SignInPage() {
   const [formData, setFormData] = useState({
@@ -10,9 +10,9 @@ export default function SignInPage() {
     password: '',
     rememberMe: false
   })
-  const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const router = useRouter()
+  const { login, isLoading } = useAuth()
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target
@@ -25,33 +25,19 @@ export default function SignInPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsLoading(true)
     setError('')
 
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-        }),
-      })
+      const success = await login(formData.email, formData.password)
 
-      const data = await response.json()
-
-      if (!response.ok) {
-        setError(data.error || 'Gabim në identifikim')
-      } else {
+      if (success) {
         router.push('/dashboard')
         router.refresh()
+      } else {
+        setError('Email ose fjalëkalim të gabuar')
       }
     } catch (error) {
-      setError('Something went wrong. Please try again.')
-    } finally {
-      setIsLoading(false)
+      setError('Gabim në identifikim. Provojeni përsëri.')
     }
   }
 
