@@ -56,11 +56,11 @@ export default function SignInPage() {
   }
 
   const handleGoogleSignIn = () => {
-    signIn('google', { callbackUrl: '/dashboard' })
+    alert('Identifikimi me Google do të jetë i disponueshëm së shpejti!')
   }
 
   const handleFacebookSignIn = () => {
-    signIn('facebook', { callbackUrl: '/dashboard' })
+    alert('Identifikimi me Facebook do të jetë i disponueshëm së shpejti!')
   }
 
   return (

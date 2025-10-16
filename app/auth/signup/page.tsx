@@ -94,11 +94,11 @@ export default function SignUpPage() {
   }
 
   const handleGoogleSignUp = () => {
-    signIn('google', { callbackUrl: '/dashboard' })
+    alert('Regjistrimi me Google do të jetë i disponueshëm së shpejti!')
   }
 
   const handleFacebookSignUp = () => {
-    signIn('facebook', { callbackUrl: '/dashboard' })
+    alert('Regjistrimi me Facebook do të jetë i disponueshëm së shpejti!')
   }
 
   return (
